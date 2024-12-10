@@ -1,11 +1,19 @@
+using dotenv.net;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UpSkillz.Data;
+using DotEnv = dotenv.net.DotEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+DotEnv.Load();
+
+// get the connection string from the environment variable
+var connectionString = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+
+
 // Add services to the container.
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
