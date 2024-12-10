@@ -1,0 +1,64 @@
+@startuml
+
+' Define entities for the online course marketplace
+
+entity Users {
+  * userId : bigint(20) <<PK>>
+  --
+  username : varchar(50)
+  email : varchar(360)
+  password : varchar(100)
+  role : enum('student', 'instructor', 'admin')
+  createdAt : datetime
+}
+
+entity Courses {
+  * courseId : bigint(20) <<PK>>
+  --
+  instructorId : bigint(20) <<FK>>
+  title : varchar(100)
+  description : text
+  price : decimal(10,2)
+  createdAt : datetime
+  updatedAt : datetime
+}
+
+entity Enrollments {
+  * enrollmentId : bigint(20) <<PK>>
+  --
+  courseId : bigint(20) <<FK>>
+  studentId : bigint(20) <<FK>>
+  enrollmentDate : datetime
+  status : enum('Active', 'Completed')
+}
+
+entity Lessons {
+  * lessonId : bigint(20) <<PK>>
+  --
+  courseId : bigint(20) <<FK>>
+  title : varchar(100)
+  videoUrl : varchar(255)
+  content : text
+  duration : int
+  createdAt : datetime
+  updatedAt : datetime
+}
+
+entity Payments {
+  * paymentId : bigint(20) <<PK>>
+  --
+  enrollmentId : bigint(20) <<FK>>
+  amount : decimal(10,2)
+  paymentDate : datetime
+}
+
+' Define relationships between entities
+Users ||--o{ Courses : creates
+Users ||--o{ Enrollments : enrolls
+Courses ||--o{ Enrollments : has
+Courses ||--o{ Lessons : contains
+Enrollments ||--o{ Lessons : includes
+Enrollments ||--o{ Payments : made
+Payments ||--o{ Users : processes
+
+@enduml
