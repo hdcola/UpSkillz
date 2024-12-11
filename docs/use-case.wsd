@@ -9,7 +9,6 @@ actor Admin
 package "UpSkillz" {
     usecase "Browse Courses" as UC1
     usecase "Enroll in a Course" as UC2
-    usecase "Make a Payment" as UC3
     usecase "See Learning history" as UC11
     usecase "Leave a Review" as UC5
     usecase "Login/Register" as UC10
@@ -19,11 +18,11 @@ package "UpSkillz" {
     usecase "Update Course Information" as UC8
 
     usecase "Manage Users" as UC9
+    usecase "See statistics" as UC12
 }
 
 Student --> UC1
 Student --> UC2
-Student --> UC3
 Student --> UC11
 Student --> UC5
 Student --> UC10
@@ -34,5 +33,6 @@ Instructor --> UC7
 Instructor --> UC8
 
 Admin --> UC9
+Admin --> UC12
 
 @enduml

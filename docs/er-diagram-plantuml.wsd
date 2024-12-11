@@ -2,7 +2,7 @@
 
 ' Define entities for the online course marketplace
 
-entity Users {
+entity AspnetUser {
   * userId : bigint(20) <<PK>>
   --
   username : varchar(50)
@@ -28,6 +28,7 @@ entity Enrollments {
   --
   courseId : bigint(20) <<FK>>
   studentId : bigint(20) <<FK>>
+  amount : decimal(10,2)  
   enrollmentDate : datetime
   status : enum('Active', 'Completed')
 }
@@ -44,21 +45,10 @@ entity Lessons {
   updatedAt : datetime
 }
 
-entity Payments {
-  * paymentId : bigint(20) <<PK>>
-  --
-  enrollmentId : bigint(20) <<FK>>
-  amount : decimal(10,2)
-  paymentDate : datetime
-}
-
 ' Define relationships between entities
-Users ||--o{ Courses : creates
-Users ||--o{ Enrollments : enrolls
+AspnetUser ||--o{ Courses : creates
+AspnetUser ||--o{ Enrollments : enrolls
 Courses ||--o{ Enrollments : has
 Courses ||--o{ Lessons : contains
-Enrollments ||--o{ Lessons : includes
-Enrollments ||--o{ Payments : made
-Payments ||--o{ Users : processes
 
 @enduml
