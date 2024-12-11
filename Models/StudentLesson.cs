@@ -6,19 +6,17 @@ namespace UpSkillz.Models;
 [Keyless]
 public class StudentLesson
 {
-    
-    [Required] 
+    [Required]
+    public int LessonId { get; set; }
+
+    [Required]
+    public string UserId { get; set; }
+
+    [Required]
     public Lesson Lesson { get; set; }
     
-    [Required]  
-    public User Student { get; set; } 
+    [Required]
+    public User Student { get; set; }
 
-
-   //  public ICollection<Lesson> Lessons { get; set; }     
-    // public ICollection<User> Students { get; set; } 
-
-    public List<User> Students {get;} = [];
-    public List<Lesson> Lessons {get;} = [];
     public bool IsCompleted { get; set; } = false;
-
 }

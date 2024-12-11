@@ -159,21 +159,6 @@ namespace UpSkillz.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("StudentLesson", b =>
-                {
-                    b.Property<int>("LessonsLessonId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("StudentsId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("LessonsLessonId", "StudentsId");
-
-                    b.HasIndex("StudentsId");
-
-                    b.ToTable("StudentLesson");
-                });
-
             modelBuilder.Entity("UpSkillz.Models.Course", b =>
                 {
                     b.Property<int>("CourseId")
@@ -287,19 +272,18 @@ namespace UpSkillz.Data.Migrations
 
             modelBuilder.Entity("UpSkillz.Models.StudentLesson", b =>
                 {
-                    b.Property<bool>("IsCompleted")
-                        .HasColumnType("bit");
-
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
+                    b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.HasIndex("LessonId");
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
 
-                    b.HasIndex("StudentId");
+                    b.HasKey("LessonId", "UserId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("StudentsLessons");
                 });
@@ -420,21 +404,6 @@ namespace UpSkillz.Data.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("StudentLesson", b =>
-                {
-                    b.HasOne("UpSkillz.Models.Lesson", null)
-                        .WithMany()
-                        .HasForeignKey("LessonsLessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("UpSkillz.Models.User", null)
-                        .WithMany()
-                        .HasForeignKey("StudentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("UpSkillz.Models.Course", b =>
                 {
                     b.HasOne("UpSkillz.Models.User", "Instructor")
@@ -479,15 +448,15 @@ namespace UpSkillz.Data.Migrations
             modelBuilder.Entity("UpSkillz.Models.StudentLesson", b =>
                 {
                     b.HasOne("UpSkillz.Models.Lesson", "Lesson")
-                        .WithMany()
+                        .WithMany("StudentsLessons")
                         .HasForeignKey("LessonId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("UpSkillz.Models.User", "Student")
-                        .WithMany()
-                        .HasForeignKey("StudentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithMany("StudentsLessons")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Lesson");
@@ -498,6 +467,16 @@ namespace UpSkillz.Data.Migrations
             modelBuilder.Entity("UpSkillz.Models.Course", b =>
                 {
                     b.Navigation("Enrollments");
+                });
+
+            modelBuilder.Entity("UpSkillz.Models.Lesson", b =>
+                {
+                    b.Navigation("StudentsLessons");
+                });
+
+            modelBuilder.Entity("UpSkillz.Models.User", b =>
+                {
+                    b.Navigation("StudentsLessons");
                 });
 #pragma warning restore 612, 618
         }

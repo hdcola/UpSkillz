@@ -15,24 +15,35 @@ public class ApplicationDbContext : IdentityDbContext<User>
     {
     }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Enrollment>()
-            .HasOne(e => e.Course)
-            .WithMany(c => c.Enrollments)
-            .OnDelete(DeleteBehavior.NoAction);
+{
+    // Define Enrollment relationships
+    modelBuilder.Entity<Enrollment>()
+        .HasOne(e => e.Course)
+        .WithMany(c => c.Enrollments)
+        .OnDelete(DeleteBehavior.NoAction);
 
-        modelBuilder.Entity<Enrollment>()
-            .HasOne(e => e.Student)
-            .WithMany()
-            .OnDelete(DeleteBehavior.NoAction);
+    modelBuilder.Entity<Enrollment>()
+        .HasOne(e => e.Student)
+        .WithMany()
+        .OnDelete(DeleteBehavior.NoAction);
 
-        
-        modelBuilder.Entity<User>()
-            .HasMany(e => e.Lessons)
-            .WithMany(c => c.Students)
-            .UsingEntity("StudentLesson");
+    modelBuilder.Entity<StudentLesson>()
+        .HasKey(sl => new { sl.LessonId, sl.UserId });
 
-        base.OnModelCreating(modelBuilder);
-    }
+    modelBuilder.Entity<StudentLesson>()
+        .HasOne(sl => sl.Lesson)
+        .WithMany(l => l.StudentsLessons)
+        .HasForeignKey(sl => sl.LessonId)
+        .OnDelete(DeleteBehavior.NoAction);  
+
+    modelBuilder.Entity<StudentLesson>()
+        .HasOne(sl => sl.Student)
+        .WithMany(u => u.StudentsLessons)
+        .HasForeignKey(sl => sl.UserId)
+        .OnDelete(DeleteBehavior.NoAction);  
+
+    base.OnModelCreating(modelBuilder);
+}
+
 
 }
