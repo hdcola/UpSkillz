@@ -10,7 +10,9 @@ public class Course
     public int CourseId { get; set; }
 
     [Required]  
-    public IdentityUser Instructor { get; set; } = new IdentityUser();
+    public User Instructor { get; set; } 
+    
+    public ICollection<Enrollment> Enrollments { get; set; }
 
     [Required(ErrorMessage = "Course title is required.")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Title must be between 1 and 100 characters.")]
@@ -29,4 +31,5 @@ public class Course
     
     [DataType(DataType.DateTime)]	
     public DateTime UpdatedAt { get; set; }
+
 }

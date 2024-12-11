@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 
 public class Lesson
@@ -8,9 +9,8 @@ public class Lesson
     public int LessonId { get; set; }
 
     [Required]  
-    public Course Course { get; set;} = new Course();
-
-    
+    public Course Course { get; set;} 
+   
     [Required(ErrorMessage = "Lesson title is required.")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Title must be between 1 and 100 characters.")]
 	public string Title { get; set;}  = string.Empty;
@@ -32,5 +32,9 @@ public class Lesson
     
     [DataType(DataType.DateTime)]	
     public DateTime UpdatedAt { get; set; }
+
+    // public ICollection<IdentityUser> Students { get; set; } = new List<IdentityUser>();
+    public List<User> Students {get;} = [];
+
 
 }

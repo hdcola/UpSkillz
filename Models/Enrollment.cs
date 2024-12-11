@@ -9,10 +9,11 @@ public class Enrollment
     public int EnrollmentId { get; set; }
 
     [Required]
-    public Course Course { get; set;} = new Course();
-    
+    public Course Course { get; set; }
+
+       
     [Required]  
-    public IdentityUser Student { get; set; } = new IdentityUser();
+    public User Student { get; set; } 
 
     [Column(TypeName = "decimal(10, 2)")]
     public decimal Amount { get; set; }
@@ -23,6 +24,7 @@ public class Enrollment
 
     [Required]
     public EnrollmentStatus  Status { get; set; } = EnrollmentStatus.Active; 
+
 
 }
 
