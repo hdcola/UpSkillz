@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 public class Enrollment
@@ -13,6 +14,7 @@ public class Enrollment
     [Required]  
     public IdentityUser Student { get; set; } = new IdentityUser();
 
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Amount { get; set; }
 
     

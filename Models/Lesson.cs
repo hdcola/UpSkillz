@@ -23,7 +23,7 @@ public class Lesson
     [Required(ErrorMessage = "Lesson content is required.")]
 	public string Content { get; set;} = string.Empty;
 
-    public int Duration { get; set; } = 0;
+    public int Duration { get; set; }
 
     
     [DataType(DataType.DateTime)]	

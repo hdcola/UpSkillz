@@ -1,5 +1,6 @@
 ﻿
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 
@@ -18,7 +19,8 @@ public class Course
     [Required(ErrorMessage = "Course description is required.")]
 	public string Description { get; set;} = string.Empty;
 
-    // not required, course can be free
+    [Required]      
+    [Column(TypeName = "decimal(10, 2)")]
     public decimal Price { get; set; } = 0;
 
     [DataType(DataType.DateTime)]	
