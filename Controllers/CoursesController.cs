@@ -46,6 +46,7 @@ namespace UpSkillz.Controllers
         // GET: Courses/Create
         public IActionResult Create()
         {
+            ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
             return View();
         }
 
@@ -54,14 +55,17 @@ namespace UpSkillz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt")] Course course)
+        public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
             if (ModelState.IsValid)
             {
+                course.CreatedAt = DateTime.UtcNow;
+                course.UpdatedAt = DateTime.UtcNow;
                 _context.Add(course);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
             return View(course);
         }
 
