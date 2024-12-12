@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +9,12 @@ namespace UpSkillz.Controllers
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private ILogger<CoursesController> _logger;
 
-        public CoursesController(ApplicationDbContext context)
+        public CoursesController(ApplicationDbContext context, ILogger<CoursesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Courses
@@ -58,12 +56,20 @@ namespace UpSkillz.Controllers
         public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
             if (ModelState.IsValid)
-            {
+            {          
+                _logger.LogInformation("ILogger: Model is Valid.");
                 course.CreatedAt = DateTime.UtcNow;
                 course.UpdatedAt = DateTime.UtcNow;
-                _context.Add(course);
-                await _context.SaveChangesAsync();
+                _context.Add(course);     
+                await _context.SaveChangesAsync();           
+                _logger.LogInformation("ILogger: Course was saved to database.");
                 return RedirectToAction(nameof(Index));
+            }
+                      
+            _logger.LogInformation("ILogger: MOdel is NOT valid.");
+            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+            {
+                _logger.LogInformation($"ILogger: Validation Error: {error.ErrorMessage}");
             }
             ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
             return View(course);
