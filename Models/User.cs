@@ -4,5 +4,5 @@ namespace UpSkillz.Models;
 
 public class User : IdentityUser
 {
-    public ICollection<StudentLesson> StudentsLessons { get; set; }
+    public ICollection<StudentLesson> StudentsLessons { get; } = null!;
 }
