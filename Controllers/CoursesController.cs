@@ -159,14 +159,14 @@ namespace UpSkillz.Controllers
             }
 
             _logger.LogInformation("ILogger: MOdel is NOT valid.");
-           /* foreach (var state in ModelState)
+            foreach (var state in ModelState)
             {
                 var field = state.Key;
                 foreach (var error in state.Value.Errors)
                 {
                     _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
                 }
-            }*/
+            }
             return View(course);
         }
 
