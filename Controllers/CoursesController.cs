@@ -17,6 +17,7 @@ namespace UpSkillz.Controllers
             _logger = logger;
         }
 
+
         // GET: Courses
         public async Task<IActionResult> Index()
         {
