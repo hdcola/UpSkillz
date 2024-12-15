@@ -44,67 +44,61 @@ namespace UpSkillz.Controllers
         // GET: Lessons/Create?courseId=5
         public async Task<IActionResult> Create(int? courseId)
         {
-            if (courseId.HasValue)
+            if (!courseId.HasValue)
             {
-                var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
-                if (course == null)
-                {
-                    _logger.LogInformation("ILogger: course doesn't exist");
-                    return NotFound();  
-                }
-                
-                _logger.LogInformation($"ILogger: coursId: {courseId}");
-                // Pass course info to the view
-                ViewBag.Course = course;
+                _logger.LogWarning("No courseId provided.");
+                return NotFound();
             }
-            return View();
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId.Value);
+            if (course == null)
+            {
+                _logger.LogInformation("Course does not exist.");
+                return NotFound("The selected course does not exist.");
+            }
 
+            _logger.LogInformation($"CourseId in GET method: {course.CourseId}");
+            ViewData["courseId"] = course.CourseId;
+
+            return View();
         }
+
 
         // POST: Lessons/Create?courseId=5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("LessonId,Title,Content")] Lesson lesson, int courseId)
+        public async Task<IActionResult> Create([Bind("LessonId,Title,Content")] Lesson lesson, [FromForm] int courseId)
         {
-            _logger.LogInformation("ILogger: Start creating lesson");
+            _logger.LogInformation("Start creating lesson.");
+            _logger.LogInformation($"CourseId in POST method: {courseId}");
+           
             if (ModelState.IsValid)
-            {                
-                _logger.LogInformation("ILogger: Model is Valid."); 
+            {
                 var existingCourse = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
-
                 if (existingCourse == null)
                 {
                     _logger.LogWarning($"No course found with ID {courseId}");
+                    ModelState.AddModelError("courseId", "The selected course does not exist.");
+                    ViewData["courseId"] = courseId;
                     return View(lesson);
                 }
-                
-                    lesson.Course = existingCourse;
-                    lesson.Course.Description = existingCourse.Description;
-                    lesson.CreatedAt = DateTime.UtcNow;
-                    lesson.UpdatedAt = DateTime.UtcNow;
 
-                    _context.Add(lesson);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));                
-                
-            }
-            
-             _logger.LogInformation("ILogger: Model is NOT valid.");
-            foreach (var state in ModelState)
-            {
-                var field = state.Key;
-                foreach (var error in state.Value.Errors)
-                {
-                    _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
-                }
-            }
-            
-            ViewBag.CoursesList = new SelectList(_context.Courses, "CourseId", "Title", "Description");
+                lesson.Course = existingCourse;
+                lesson.CreatedAt = DateTime.UtcNow;
+                lesson.UpdatedAt = DateTime.UtcNow;
 
+                _context.Add(lesson);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+
+            _logger.LogInformation("Model is NOT valid.");
+            ViewData["courseId"] = courseId;
+            
             return View(lesson);
         }
+
 
         // GET: Lessons/Edit/5
         public async Task<IActionResult> Edit(int? id)

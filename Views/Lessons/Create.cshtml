@@ -2,10 +2,16 @@
 @model UpSkillz.Models.Lesson
 
 @{
-    ViewData["Title"] = "Create";
+   // ViewData["Title"] = "Create";
+    var courseId = ViewData["courseId"] as int?;
+
+    if (courseId == null)
+    {
+        <p class="text-danger">Course ID is missing or invalid.</p>
+    }
 }
 
-<h1>Create</h1>
+<h1>Create lesson</h1>
 <!-- it should be "Lessons/Create?courseId=5" -->
 <h4>Lesson</h4>
 <hr />
@@ -14,7 +20,7 @@
         <form asp-action="Create">
 
             @* Hidden field to retain courseId *@
-            <input type="hidden" name="CourseId" value="@ViewData["CourseId"]" />
+            <input type="hidden" name="courseId" value="@courseId" />
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
