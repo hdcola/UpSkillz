@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 public class Lesson
 {
@@ -27,6 +26,8 @@ public class Lesson
     [DataType(DataType.DateTime)]
     public DateTime UpdatedAt { get; set; }
 
-    public ICollection<StudentLesson> StudentsLessons { get; } = null!;
+   public ICollection<StudentLesson> StudentsLessons { get; set; } = new List<StudentLesson>();
+
+
 }
 

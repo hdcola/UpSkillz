@@ -12,7 +12,8 @@ public class Course
     [Required]
     public User Instructor { get; set; } = new User();
 
-    public ICollection<Enrollment> Enrollments { get; } = null!;
+    public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
 
     [Required(ErrorMessage = "Course title is required.")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Title must be between 1 and 100 characters.")]

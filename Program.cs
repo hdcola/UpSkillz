@@ -34,6 +34,10 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddDefaultUI();
 builder.Services.AddRazorPages();
 
+// Configure Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
