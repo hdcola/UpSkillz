@@ -32,7 +32,7 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
-builder.Services.AddRazorPages();
+builder.Services.AddRazorPages(o => o.RootDirectory = "/Home");
 
 // Configure Logging
 builder.Logging.ClearProviders();
