@@ -20,3 +20,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.main-text-color{
+  color: #529C57;
+}
+.main-bg-color{
+  background-color: #529C57;
+}

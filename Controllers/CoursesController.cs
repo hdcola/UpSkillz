@@ -33,12 +33,19 @@ namespace UpSkillz.Controllers
             }
 
             var course = await _context.Courses
+                .Include(c => c.Instructor)
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {
                 return NotFound();
             }
+            var instructor = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);
 
+            ViewBag.instructorName = instructor?.UserName ?? "Anonymous";
+            ViewBag.instructorId = course.Instructor.Id;
+
+            _logger.LogInformation($"Course instructor: {ViewBag.instructorName}");
             return View(course);
         }
 
