@@ -113,6 +113,9 @@ namespace UpSkillz.Controllers
                 ViewBag.courseTitle = existingCourse.Title;
                 ViewBag.courseDescription = existingCourse.Description;
 
+                ModelState.Clear();
+                TryValidateModel(lesson);
+
                 if (ModelState.IsValid) {       
                     lesson.CreatedAt = DateTime.UtcNow;
                     lesson.UpdatedAt = DateTime.UtcNow;
