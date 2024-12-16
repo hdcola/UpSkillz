@@ -32,6 +32,12 @@ builder.Services.AddDefaultIdentity<User>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 builder.Services.AddRazorPages();
+// builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<BlobStorageService>();
+
+// Configure Logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
 
 var app = builder.Build();
 

@@ -1,0 +1,49 @@
+@model List<string>
+@{
+    var errors = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blob Storage Demo</title>
+</head>
+
+<body>
+    <h1>Upload and Display Images</h1>
+
+    <form asp-action="Upload" enctype="multipart/form-data">
+        <div class="form-group">
+            <label asp-for="File"></label>
+            <input type="file" asp-for="File" class="form-control" accept="image/*" />
+            <span asp-validation-for="File" class="text-danger"></span>
+        </div>
+        @* <input type="file" name="File" accept="image/*" /> *@
+        <button type="submit">Upload</button>
+    </form>
+
+    @if (errors.Any())
+    {
+        <div style="color: red;">
+            @foreach (var error in errors)
+            {
+                <p>@error</p>
+            }
+        </div>
+    }
+
+    <h2>Uploaded Images:</h2>
+    <div>
+        @foreach (var url in Model)
+        {
+            <div style="margin: 10px 0;">
+                <img src="@url" alt="Uploaded Image" style="max-width: 300px;" />
+            </div>
+        }
+    </div>
+</body>
+
+</html>
