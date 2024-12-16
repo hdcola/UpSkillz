@@ -38,9 +38,6 @@ namespace UpSkillz.Controllers
                 return NotFound();
             }
         
-            ViewBag.CoursesList = new SelectList(_context.Courses, "CourseId", "Title");
-
-
             return View(lesson);
         }
 
@@ -109,7 +106,7 @@ namespace UpSkillz.Controllers
                 _logger.LogInformation($"Course with Id: {existingCourse.CourseId} ->  Title: {existingCourse.Title}; Description: {existingCourse.Description}");
              
                 lesson.Course = existingCourse;
-               // lesson.Course.Title = existingCourse.Title;
+                // lesson.Course.Title = existingCourse.Title;
                 // lesson.Course.Description = existingCourse.Description;
 
                 ViewBag.courseId = existingCourse.CourseId;
