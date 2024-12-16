@@ -76,7 +76,6 @@
 
 ##### To do until next scrum
 - Setup Azure WebApp server
-- CI – build and testing it use GitHub workflow
 - CD – deploy project to Azure
 
 ##### Need assistance with
@@ -86,6 +85,39 @@
 ---
 
 ### _12/14_
+
+#### Iana
+
+##### Done since last scrum
+- Still working on with forms/wizard to create lessons for the course
+##### To do until next scrum
+- Will finish forms/wizard to create lessons
+- Will work on showing lessons for the specific course
+##### Need assistance with
+-
+
+#### Tamara
+
+##### Done since last scrum
+- Get backend Registration working
+- Implement roles (user, instructor)
+##### To do until next scrum
+- Frontend for registration and login
+##### Need assistance with
+-
+
+#### Danny
+
+##### Done since last scrum
+- Setup Azure WebApp server
+- CD – deploy project to Azure
+##### To do until next scrum
+- Setup Azure Blobs storage
+- 
+##### Need assistance with
+-
+
+### _12/16_
 
 #### Iana
 
@@ -113,6 +145,7 @@
 - 
 ##### Need assistance with
 -
+
 
 
 
