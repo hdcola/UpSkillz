@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,11 +9,14 @@ namespace UpSkillz.Controllers
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private ILogger<CoursesController> _logger;
 
-        public CoursesController(ApplicationDbContext context)
+        public CoursesController(ApplicationDbContext context, ILogger<CoursesController> logger)
         {
             _context = context;
+            _logger = logger;
         }
+
 
         // GET: Courses
         public async Task<IActionResult> Index()
@@ -34,12 +33,19 @@ namespace UpSkillz.Controllers
             }
 
             var course = await _context.Courses
+                .Include(c => c.Instructor)
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {
                 return NotFound();
             }
+            var instructor = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);
 
+            ViewBag.instructorName = instructor?.UserName ?? "Anonymous";
+            ViewBag.instructorId = course.Instructor.Id;
+
+            _logger.LogInformation($"Course instructor: {ViewBag.instructorName}");
             return View(course);
         }
 
@@ -58,12 +64,24 @@ namespace UpSkillz.Controllers
         public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
             if (ModelState.IsValid)
-            {
+            {          
+                _logger.LogInformation("ILogger: Model is Valid.");
                 course.CreatedAt = DateTime.UtcNow;
                 course.UpdatedAt = DateTime.UtcNow;
-                _context.Add(course);
-                await _context.SaveChangesAsync();
+                _context.Add(course);     
+                await _context.SaveChangesAsync();           
+                _logger.LogInformation("ILogger: Course was saved to database.");
                 return RedirectToAction(nameof(Index));
+            }
+                      
+            _logger.LogInformation("ILogger: Model is NOT valid.");
+            foreach (var state in ModelState)
+            {
+                var field = state.Key;
+                foreach (var error in state.Value.Errors)
+                {
+                    _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
+                }
             }
             ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
             return View(course);
@@ -90,10 +108,14 @@ namespace UpSkillz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt")] Course course)
+        public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
+            
+            _logger.LogInformation($"ILogger: Trying to update - Title: {course.Title}, Description: {course.Description}, Price: {course.Price}, CreatedAt: {course.CreatedAt}, UpdatedAt: {course.UpdatedAt}");
+
             if (id != course.CourseId)
             {
+                _logger.LogInformation("ILogger: Course is NOT found.");
                 return NotFound();
             }
 
@@ -101,21 +123,57 @@ namespace UpSkillz.Controllers
             {
                 try
                 {
-                    _context.Update(course);
-                    await _context.SaveChangesAsync();
+                    var existingCourse = await _context.Courses
+                                       .Include(c => c.Instructor)
+                                       .FirstOrDefaultAsync(c => c.CourseId == id);
+
+                    if (existingCourse == null)
+                    {
+                        _logger.LogWarning($"ILogger: Course {id} does not exist in the database.");
+                        return NotFound();
+                    }
+
+                    _logger.LogInformation($"ILogger: Trying to update Course {existingCourse.CourseId} with Instructor: {existingCourse.Instructor.Id}");
+                    
+                    existingCourse.Title = course.Title;
+                    existingCourse.Description = course.Description;
+                    existingCourse.Price = course.Price;
+                    existingCourse.CreatedAt = course.CreatedAt;
+                    existingCourse.UpdatedAt = course.UpdatedAt;
+
+                    if (course.Instructor != null)
+                    {
+                        existingCourse.Instructor = course.Instructor;
+                    }
+                    await _context.SaveChangesAsync();                    
+                    _logger.LogInformation("ILogger: Course is updated.");
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
+                    _logger.LogError($"ILogger: Update Concurrency error: {ex}");
+
                     if (!CourseExists(course.CourseId))
                     {
+                        _logger.LogWarning($"ILogger: Course with ID {course.CourseId} was not found during concurrency check.");
                         return NotFound();
                     }
                     else
                     {
+                        _logger.LogDebug("ILogger: Other error");
                         throw;
                     }
                 }
                 return RedirectToAction(nameof(Index));
+            }
+
+            _logger.LogInformation("ILogger: MOdel is NOT valid.");
+            foreach (var state in ModelState)
+            {
+                var field = state.Key;
+                foreach (var error in state.Value.Errors)
+                {
+                    _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
+                }
             }
             return View(course);
         }

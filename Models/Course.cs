@@ -10,9 +10,10 @@ public class Course
     public int CourseId { get; set; }
 
     [Required]
-    public User Instructor { get; set; }
+    public User Instructor { get; set; } = new User();
 
-    public ICollection<Enrollment> Enrollments { get; set; }
+    public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
+
 
     [Required(ErrorMessage = "Course title is required.")]
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Title must be between 1 and 100 characters.")]
@@ -26,10 +27,10 @@ public class Course
     public decimal Price { get; set; } = 0;
 
     [DataType(DataType.DateTime)]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
 
 
     [DataType(DataType.DateTime)]
-    public DateTime UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
 }

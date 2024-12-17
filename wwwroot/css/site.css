@@ -20,3 +20,28 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.main-text-color{
+  color: #529C57;
+}
+.main-bg-color{
+  background-color: #529C57;
+}
+
+.btn-upskillz {
+  background-color: #00B050;
+  color: white;
+}
+.btn-upskillz:hover, .btn-upskillz:active {
+  background-color: #00bb54;
+  color: white;
+}
+
+#registerForm .logo, #account .logo {
+  height: 100px;
+}
+
+#registerForm input:focus {
+  border-color:#00bb54;
+  box-shadow: none;
+}

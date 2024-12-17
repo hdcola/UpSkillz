@@ -19,7 +19,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddDefaultIdentity<User>(options =>
+builder.Services.AddIdentity<User, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false;
     options.Password.RequireDigit = false;
@@ -29,11 +29,13 @@ builder.Services.AddDefaultIdentity<User>(options =>
     options.Password.RequiredLength = 6;
 })
     .AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddRoles<IdentityRole>()
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 builder.Services.AddRazorPages();
 // builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<BlobStorageService>();
+builder.Services.AddRazorPages(o => o.RootDirectory = "/Home");
 
 // Configure Logging
 builder.Logging.ClearProviders();
