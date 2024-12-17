@@ -8,7 +8,7 @@ namespace UpSkillz.Models
     {
         [Display(Name = "File")]
         [NotMapped]
-        public IFormFile File { get; set; }
+        public IFormFile? File { get; set; } 
     }
 
 }

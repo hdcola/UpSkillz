@@ -21,7 +21,11 @@ body {
   margin-bottom: 60px;
 }
 
-.main-text-color{
+.nav-link.nav-link-upskillz.active{
+  background-color: #00B050;
+}
+
+.text-upskillz{
   color: #529C57;
 }
 
