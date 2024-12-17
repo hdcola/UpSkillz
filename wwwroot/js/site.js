@@ -16,7 +16,7 @@ $(document).ready(function () {
                 "RequestVerificationToken": token
             },
             success: function (response) {
-                alert('Lesson completed successfully');
+                // alert('Lesson completed successfully');
                 location.reload();
             },
             error: function (xhr) {

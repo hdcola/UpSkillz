@@ -13,10 +13,10 @@ public class StudentLesson
     public string UserId { get; set; } = string.Empty;
 
     [Required]
-    public Lesson Lesson { get; set; } = new Lesson();
+    public Lesson Lesson { get; set; } = null!;
 
     [Required]
-    public User Student { get; set; } = new User();
+    public User Student { get; set; } = null!;
 
     public bool IsCompleted { get; set; } = false;
 }
