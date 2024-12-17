@@ -135,7 +135,7 @@ namespace UpSkillz.Controllers
             {
                 studentLesson = new StudentLesson
                 {
-                    LessonId = lesson.LessonId,
+                    LessonId = id,
                     UserId = userId,
                     IsCompleted = true
                 };
