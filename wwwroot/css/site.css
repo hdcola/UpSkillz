@@ -45,3 +45,9 @@ body {
   border-color:#00bb54;
   box-shadow: none;
 }
+
+.border-shadow-dark {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+  border: none; 
+  border-radius: 0.25rem; 
+}

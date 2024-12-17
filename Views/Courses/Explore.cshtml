@@ -1,0 +1,11 @@
+@model UpSkillz.Models.Course
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Explore the courses";
+}
+
+<h1>Explore the courses</h1>
+<main>
+    @await Html.PartialAsync("~/Views/Courses/Cards.cshtml", Model)
+</main>

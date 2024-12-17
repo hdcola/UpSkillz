@@ -21,7 +21,15 @@ namespace UpSkillz.Controllers
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Courses.ToListAsync());
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses);
+        }
+
+        // GET: Cards for partial view
+        public async Task<IActionResult> Cards()
+        {
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses); 
         }
 
         // GET: Courses/Details/5
@@ -44,6 +52,7 @@ namespace UpSkillz.Controllers
 
             ViewBag.instructorName = instructor?.UserName ?? "Anonymous";
             ViewBag.instructorId = course.Instructor.Id;
+            ViewBag.courseId = course.CourseId;
 
             _logger.LogInformation($"Course instructor: {ViewBag.instructorName}");
             return View(course);
