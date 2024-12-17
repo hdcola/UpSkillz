@@ -5,6 +5,7 @@ using Stripe;
 using UpSkillz.Data;
 using UpSkillz.Models;
 using UpSkillz.Services;
+using System.Security.Claims;
 
 namespace UpSkillz.Controllers
 {
@@ -35,6 +36,12 @@ namespace UpSkillz.Controllers
             _logger.LogInformation("Accessing checkout page for course ID {CourseId}", courseId);
             ViewBag.PublishableKey = _stripePublicKey;
             ViewBag.CourseId = courseId;
+
+            var userName = User.Identity?.Name ?? "Guest";
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            ViewBag.UserName = userName;
+            ViewBag.Email = email;
+
             return View();
         }
 
