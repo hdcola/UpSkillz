@@ -24,9 +24,6 @@ body {
 .main-text-color{
   color: #529C57;
 }
-.main-bg-color{
-  background-color: #529C57;
-}
 
 .btn-upskillz {
   background-color: #00B050;
@@ -44,4 +41,10 @@ body {
 #registerForm input:focus {
   border-color:#00bb54;
   box-shadow: none;
+}
+
+.border-shadow-dark {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+  border: none; 
+  border-radius: 0.25rem; 
 }

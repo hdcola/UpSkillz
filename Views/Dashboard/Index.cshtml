@@ -1,0 +1,56 @@
+@model IEnumerable<UpSkillz.Models.Course>
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Dashboard";
+}
+
+<h1>Dashboard</h1>
+<main>
+    <p>Passionate about teaching? Start sharing your knowledge today.</p>
+    <a class="btn btn-upskillz mt-2 mb-5">Apply to Become an Instructor</a>
+
+    @if (User.IsInRole("User"))
+    {
+        <h2>Your Enrolled Courses</h2>
+        @if (Model.Any())
+        {
+            <ul class="list-group">
+                @foreach (var course in Model)
+                {
+                    <li class="list-group-item">
+                        <strong>@course.Title</strong><br />
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>You are not enrolled in any courses yet.</p>
+        }
+    }
+    else if (User.IsInRole("Instructor"))
+    {
+        <h2>Courses You Manage</h2>
+        @if (Model.Any())
+        {
+            <ul class="list-group">
+                @foreach (var course in Model)
+                {
+                    <li class="list-group-item">
+                        <strong>@course.Title</strong><br />
+                        <a class="btn btn-outline-primary btn-sm" asp-controller="Courses" asp-action="Edit" asp-route-id="@course.CourseId">Manage</a>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>You are not managing any courses currently.</p>
+        }
+    }
+    else
+    {
+        <p>You do not have access to this section.</p>
+    }
+</main>

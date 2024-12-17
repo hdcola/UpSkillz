@@ -9,11 +9,13 @@ namespace UpSkillz.Controllers
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
+         private readonly BlobStorageService _blobStorageService;
         private ILogger<CoursesController> _logger;
 
-        public CoursesController(ApplicationDbContext context, ILogger<CoursesController> logger)
+        public CoursesController(ApplicationDbContext context, BlobStorageService blobStorageService, ILogger<CoursesController> logger)
         {
             _context = context;
+            _blobStorageService = blobStorageService;
             _logger = logger;
         }
 
@@ -21,7 +23,21 @@ namespace UpSkillz.Controllers
         // GET: Courses
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Courses.ToListAsync());
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses);
+        }
+
+        // GET: Courses/Explore
+        public async Task<IActionResult> Explore()
+        {
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses);
+        }
+        // GET: Cards for partial view
+        public async Task<IActionResult> Cards()
+        {
+            var courses = await _context.Courses.ToListAsync();
+            return View(courses); 
         }
 
         // GET: Courses/Details/5
@@ -44,6 +60,7 @@ namespace UpSkillz.Controllers
 
             ViewBag.instructorName = instructor?.UserName ?? "Anonymous";
             ViewBag.instructorId = course.Instructor.Id;
+            ViewBag.courseId = course.CourseId;
 
             _logger.LogInformation($"Course instructor: {ViewBag.instructorName}");
             return View(course);
@@ -61,19 +78,30 @@ namespace UpSkillz.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
+        public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor,File")] Course course)
         {
+            ModelState.Clear();
+            TryValidateModel(course);
+
             if (ModelState.IsValid)
             {          
                 _logger.LogInformation("ILogger: Model is Valid.");
                 course.CreatedAt = DateTime.UtcNow;
                 course.UpdatedAt = DateTime.UtcNow;
+
+                if (course.File != null)
+                {
+                    var blobUrl = await _blobStorageService.UploadFileAsync(course.File);
+                    course.imageUrl = blobUrl;
+                }
+
                 _context.Add(course);     
                 await _context.SaveChangesAsync();           
                 _logger.LogInformation("ILogger: Course was saved to database.");
                 return RedirectToAction(nameof(Index));
             }
                       
+            
             _logger.LogInformation("ILogger: Model is NOT valid.");
             foreach (var state in ModelState)
             {

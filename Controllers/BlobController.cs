@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using UpSkillz.Models;  // 添加模型命名空间
+using UpSkillz.Models;  
 
 public class BlobController : Controller
 {

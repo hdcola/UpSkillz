@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 
-public class Course
+public class Course:UploadModel
 {
     [Key]
     public int CourseId { get; set; }
@@ -21,6 +21,9 @@ public class Course
 
     [Required(ErrorMessage = "Course description is required.")]
     public string Description { get; set; } = string.Empty;
+
+    public string imageUrl { get; set; } = string.Empty;
+
 
     [Required]
     [Column(TypeName = "decimal(10, 2)")]
