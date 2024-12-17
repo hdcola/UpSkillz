@@ -10,51 +10,6 @@
     <h2>Checkout form</h2>
   </div>
 
-  <form id="payment-form">
-    <div id="card-element">
-      <!-- A Stripe Element will be inserted here. -->
-    </div>
-    <button id="submit">Pay</button>
-    <div id="payment-result" style="margin-top: 20px;"></div>
-  </form>
-
-  <script src="https://js.stripe.com/v3/"></script>
-  <script>
-    const stripe = Stripe('@ViewBag.PublishableKey');
-    const elements = stripe.elements();
-    const cardElement = elements.create('card');
-    cardElement.mount('#card-element');
-
-    const form = document.getElementById('payment-form');
-    const resultContainer = document.getElementById('payment-result');
-
-    form.addEventListener('submit', async (event) => {
-      event.preventDefault();
-      const response = await fetch('/CHeckout/CreatePaymentIntent', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          Name: 'Test User',
-          Email: 'test@example.com',
-          Amount: 5000 // Amount in cents ($50.00)
-        })
-      });
-      const { clientSecret } = await response.json();
-
-      const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
-        payment_method: {
-          card: cardElement
-        }
-      });
-
-      if (error) {
-        resultContainer.textContent = error.message;
-      } else {
-        resultContainer.textContent = `Payment Successful! Payment Intent ID: ${paymentIntent.id}`;
-      }
-    });
-  </script>
-
   <div class="row g-5">
     <div class="col-md-5 col-lg-4 order-md-last">
       <h4 class="d-flex justify-content-between align-items-center mb-3">
@@ -89,51 +44,94 @@
         </div>
       </form>
     </div>
+
     <div class="col-md-7 col-lg-8">
-      <form asp-action="Proceed">
+      <form id="payment-form">
         <h4 class="mb-3">Payment</h4>
-
-        <div class="my-3">
-          <div class="form-check">
-            <input id="debit" name="paymentMethod" type="radio" checked class="form-check-input" required="">
-            <label class="form-check-label" for="debit">Credit card</label>
-          </div>
-          <div class="form-check">
-            <input id="paypal" name="paymentMethod" type="radio" class="form-check-input" required="">
-            <label class="form-check-label" for="paypal">PayPal</label>
-          </div>
+        <label for="cc-number" class="form-label">Credit card information</label>
+        <div id="card-element">
+          <!-- A Stripe Element will be inserted here. -->
         </div>
-
-        <div class="row gy-3">
-          <div class="col-md-6">
-            <label for="cc-number" class="form-label">Credit card number</label>
-            <input type="text" class="form-control" id="cc-number" placeholder="" required="">
-            <div class="invalid-feedback">
-              Credit card number is required
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <label for="cc-expiration" class="form-label">Expiration</label>
-            <input type="text" class="form-control" id="cc-expiration" placeholder="" required="">
-            <div class="invalid-feedback">
-              Expiration date required
-            </div>
-          </div>
-
-          <div class="col-md-3">
-            <label for="cc-cvv" class="form-label">CVV</label>
-            <input type="text" class="form-control" id="cc-cvv" placeholder="" required="">
-            <div class="invalid-feedback">
-              Security code required
-            </div>
-          </div>
-        </div>
-
         <hr class="my-4">
 
-        <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
+        <div id="payment-result" class="alert d-none mb-3"></div>
+
+        <button class="w-100 btn btn-primary btn-lg" type="submit">Pay</button>
+        <div id="continue"></div>
       </form>
     </div>
   </div>
 </main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe('@ViewBag.PublishableKey');
+  const elements = stripe.elements();
+  const cardElement = elements.create('card');
+  cardElement.mount('#card-element');
+
+  const form = document.getElementById('payment-form');
+  const resultContainer = document.getElementById('payment-result');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    // Show loading state
+    const submitButton = form.querySelector('button');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    const response = await fetch('/Checkout/CreatePaymentIntent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        Name: 'Test User',
+        Email: 'test@example.com',
+        Amount: 5000 // Amount in cents ($50.00)
+      })
+    });
+    const { clientSecret } = await response.json();
+
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement
+      }
+    });
+
+    resultContainer.classList.remove('d-none', 'alert-success', 'alert-danger');
+
+    if (error) {
+      resultContainer.classList.add('alert-danger');
+      resultContainer.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-x-circle-fill text-danger me-2"></i>
+          <span>${error.message}</span>
+        </div>`;
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.innerHTML = 'Pay';
+    } else {
+      resultContainer.classList.add('alert-success');
+      resultContainer.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-check-circle-fill text-success me-2"></i>
+          <span>Payment Successful!</span>
+        </div>
+        <small class="d-block mt-1">Payment ID: ${paymentIntent.id}</small>`;
+
+      // Remove submitButton
+      submitButton.remove();
+
+      // Create continue button
+      const continueButton = document.createElement('button');
+      continueButton.classList.add('w-100', 'btn', 'btn-success', 'btn-lg', 'mt-3');
+      continueButton.textContent = 'Continue';
+      document.getElementById('continue').appendChild(continueButton);
+
+      // Redirect to '/' when continue button is clicked
+      continueButton.addEventListener('click', () => {
+        window.location.href = '/';
+      });
+    }
+  });
+</script>
