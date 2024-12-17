@@ -24,10 +24,17 @@ namespace UpSkillz.Controllers
         }
 
         // GET: Checkout
-        public IActionResult Index()
+        public IActionResult Index(string cid)
         {
-            _logger.LogInformation("Accessing checkout page");
+            if (!int.TryParse(cid, out int courseId))
+            {
+                _logger.LogError("Invalid course ID: {CourseId}", cid);
+                return BadRequest("Invalid course ID");
+            }
+
+            _logger.LogInformation("Accessing checkout page for course ID {CourseId}", courseId);
             ViewBag.PublishableKey = _stripePublicKey;
+            ViewBag.CourseId = courseId;
             return View();
         }
 

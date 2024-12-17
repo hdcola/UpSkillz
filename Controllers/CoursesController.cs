@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UpSkillz.Data;
 using UpSkillz.Models;
+using UpSkillz.Services;
 
 namespace UpSkillz.Controllers
 {
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
-         private readonly BlobStorageService _blobStorageService;
+        private readonly BlobStorageService _blobStorageService;
         private ILogger<CoursesController> _logger;
 
         public CoursesController(ApplicationDbContext context, BlobStorageService blobStorageService, ILogger<CoursesController> logger)
@@ -37,7 +38,7 @@ namespace UpSkillz.Controllers
         public async Task<IActionResult> Cards()
         {
             var courses = await _context.Courses.ToListAsync();
-            return View(courses); 
+            return View(courses);
         }
 
         // GET: Courses/Details/5
@@ -84,7 +85,7 @@ namespace UpSkillz.Controllers
             TryValidateModel(course);
 
             if (ModelState.IsValid)
-            {          
+            {
                 _logger.LogInformation("ILogger: Model is Valid.");
                 course.CreatedAt = DateTime.UtcNow;
                 course.UpdatedAt = DateTime.UtcNow;
@@ -95,13 +96,13 @@ namespace UpSkillz.Controllers
                     course.imageUrl = blobUrl;
                 }
 
-                _context.Add(course);     
-                await _context.SaveChangesAsync();           
+                _context.Add(course);
+                await _context.SaveChangesAsync();
                 _logger.LogInformation("ILogger: Course was saved to database.");
                 return RedirectToAction(nameof(Index));
             }
-                      
-            
+
+
             _logger.LogInformation("ILogger: Model is NOT valid.");
             foreach (var state in ModelState)
             {
@@ -138,7 +139,7 @@ namespace UpSkillz.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
-            
+
             _logger.LogInformation($"ILogger: Trying to update - Title: {course.Title}, Description: {course.Description}, Price: {course.Price}, CreatedAt: {course.CreatedAt}, UpdatedAt: {course.UpdatedAt}");
 
             if (id != course.CourseId)
@@ -162,7 +163,7 @@ namespace UpSkillz.Controllers
                     }
 
                     _logger.LogInformation($"ILogger: Trying to update Course {existingCourse.CourseId} with Instructor: {existingCourse.Instructor.Id}");
-                    
+
                     existingCourse.Title = course.Title;
                     existingCourse.Description = course.Description;
                     existingCourse.Price = course.Price;
@@ -173,7 +174,7 @@ namespace UpSkillz.Controllers
                     {
                         existingCourse.Instructor = course.Instructor;
                     }
-                    await _context.SaveChangesAsync();                    
+                    await _context.SaveChangesAsync();
                     _logger.LogInformation("ILogger: Course is updated.");
                 }
                 catch (DbUpdateConcurrencyException ex)
