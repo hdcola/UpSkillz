@@ -1,6 +1,6 @@
-@model List<string>
+@model UpSkillz.Models.UploadModel
 @{
-    var errors = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
+    //var errors = ViewData.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage).ToList();
 }
 
 <!DOCTYPE html>
@@ -24,7 +24,7 @@
         @* <input type="file" name="File" accept="image/*" /> *@
         <button type="submit">Upload</button>
     </form>
-
+    @*
     @if (errors.Any())
     {
         <div style="color: red;">
@@ -34,10 +34,11 @@
             }
         </div>
     }
+    *@
 
     <h2>Uploaded Images:</h2>
     <div>
-        @foreach (var url in Model)
+        @foreach (var url in ViewBag.blobUrls)
         {
             <div style="margin: 10px 0;">
                 <img src="@url" alt="Uploaded Image" style="max-width: 300px;" />

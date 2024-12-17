@@ -17,7 +17,8 @@ public class BlobController : Controller
     {
         var blobUrls = await _blobStorageService.GetAllBlobUrlsAsync();
         _logger.LogInformation("Retrieved {Count} blob URLs", blobUrls.Count);
-        return View(blobUrls);
+        ViewBag.blobUrls = blobUrls;
+        return View();
     }
 
     [HttpPost]
@@ -36,7 +37,8 @@ public class BlobController : Controller
         }
 
         var blobUrls = await _blobStorageService.GetAllBlobUrlsAsync();
-        return View("Index", blobUrls);
+        ViewBag.blobUrls = blobUrls;
+        return View("Index");
     }
 
 }
