@@ -113,11 +113,49 @@
 - CD – deploy project to Azure
 ##### To do until next scrum
 - Setup Azure Blobs storage
-- 
+- Create blob example
 ##### Need assistance with
 -
 
+---
+
 ### _12/16_
+
+#### Iana
+
+##### Done since last scrum
+- Created Home page, Course Details, Checkout layout
+- Created reusable Cards layout
+- Created helper functions in Lessons Controller
+##### To do until next scrum
+- Work on lesson create form styling 
+##### Need assistance with
+-
+
+#### Tamara
+
+##### Done since last scrum
+- Frontend for registration and login
+- Help find fixes for model validation, routing
+##### To do until next scrum
+- Implement user to instructor option
+##### Need assistance with
+-
+
+#### Danny
+
+##### Done since last scrum
+- Created blob controller and Blob storage service
+- Created connection string for Blob storage
+- Created Upload Model
+##### To do until next scrum
+- Learning stripe implementation at the checkout 
+##### Need assistance with
+-
+
+---
+
+### _12/17_
 
 #### Iana
 
@@ -127,6 +165,7 @@
 - 
 ##### Need assistance with
 -
+
 
 #### Tamara
 
@@ -145,6 +184,8 @@
 - 
 ##### Need assistance with
 -
+
+
 
 
 
