@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - UpSkillz</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/UpSkillz.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -27,8 +28,34 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (User.IsInRole("Instructor")) 
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"asp-controller="Dashboard" asp-action="Index">Instructor</a>
+                            </li>
+                        }
+                        else {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"asp-controller="Dashboard" asp-action="Index">Teach on UpSkillz</a>
+                            </li>
+                        }
                     </ul>
-                    <partial name="_LoginPartial" />
+                    <partial name="_LoginPartial" /> 
+                    @if (User.Identity.IsAuthenticated)
+                    {
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-light">
+                                <li><a class="dropdown-item" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                            </ul>
+                            </div>
+
+                    }
+
+                    
+
                 </div>
             </div>
         </nav>
@@ -48,7 +75,8 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
     @await RenderSectionAsync("Scripts", required: false)

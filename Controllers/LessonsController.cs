@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -17,11 +18,129 @@ namespace UpSkillz.Controllers
             _logger = logger;
         }
 
-        // GET: Lessons
+
+        // helper method to fetch course by ID and save dats to ViewBag
+        private async Task<Course?> GetCourseAndSetViewBag(int courseId)
+        {
+            var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+            if (course != null)
+            {
+                ViewBag.courseId = course.CourseId;
+                ViewBag.courseTitle = course.Title;
+                ViewBag.courseDescription = course.Description;
+                return course;
+            }
+
+            ViewBag.status = "error";
+            ViewBag.ErrorMessage = "Course does not exist.";
+            _logger.LogInformation($"Course with ID {courseId} does not exist.");
+            return null;
+        }
+
+        // helper method to parse courseId from query string into integer
+        private bool TryGetCourseIdFromQuery(out int courseId)
+        {
+            if (int.TryParse(Request.Query["courseId"], out courseId))
+            {
+                _logger.LogInformation($"Received courseId: {courseId}");
+                return true;
+            }
+
+            _logger.LogWarning("Invalid or missing courseId.");
+            ViewBag.ErrorMessage = "Invalid or missing courseId.";
+            return false;
+        }
+
+
+
+        // GET: Lessons?courseId=5
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Lessons.ToListAsync());
+            try
+            {
+                if (int.TryParse(Request.Query["courseId"], out int courseId))
+                {
+                    _logger.LogWarning($"Received courseId: {courseId}");
+                    var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+                    if (course == null)
+                    {
+                        ViewBag.status = "error";
+                        _logger.LogInformation("Course does not exist.");
+                        ViewBag.ErrorMessage = "Course does not exist.";                        
+                        return View(Enumerable.Empty<Lesson>()); // return empty list for view
+                    }
+                        _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}");
+                        ViewBag.courseId = course.CourseId;
+                        ViewBag.courseTitle = course.Title;
+                        return View(await _context.Lessons
+                                    .Include(sl => sl.StudentsLessons)         
+                                    .Where(l => l.Course.CourseId == courseId).ToListAsync());
+                    
+                }
+                
+                _logger.LogWarning("Invalid or missing courseId.");
+                ViewBag.ErrorMessage = "Invalid or missing courseId.";
+                ViewBag.courseId = null;
+                return View(Enumerable.Empty<Lesson>());
+                
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception: {ex.Message}", ex);
+                ViewBag.ErrorMessage = "An unexpected error occurred.";
+                return View(Enumerable.Empty<Lesson>());
+            }
         }
+
+
+    // POST: Lessons/CompleteLesson/{id}
+    [HttpGet]
+    public async Task<IActionResult> CompleteLesson(int id)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return BadRequest("User is not authenticated.");
+            }
+
+            var studentLesson = await _context.StudentsLessons
+                .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
+
+            if (studentLesson == null)
+            {
+                studentLesson = new StudentLesson
+                {
+                    LessonId = id,
+                    UserId = userId,
+                    IsCompleted = true
+                };
+
+                _context.StudentsLessons.Add(studentLesson);
+            }
+            else
+            {
+                // Mark it as completed if it already exists
+                studentLesson.IsCompleted = true;
+            }
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { courseId = ViewBag.courseId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error completing the lesson: {ex.Message}");
+            return RedirectToAction("Index", new { ErrorMessage = "An error occurred while completing the lesson." });
+        }
+    }
+
+
 
         // GET: Lessons/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -60,7 +179,7 @@ namespace UpSkillz.Controllers
                     }
                     else
                     {
-                        _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}; Description: {course.Description}");
+                        _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}");
                         ViewBag.courseId = course.CourseId;
                         ViewBag.courseTitle = course.Title;
                         ViewBag.courseDescription = course.Description;
@@ -103,7 +222,7 @@ namespace UpSkillz.Controllers
                     // ViewBag.courseId = courseId;
                     return View(lesson);
                 }
-                _logger.LogInformation($"Course with Id: {existingCourse.CourseId} ->  Title: {existingCourse.Title}; Description: {existingCourse.Description}");
+                _logger.LogInformation($"Course with Id: {existingCourse.CourseId} ->  Title: {existingCourse.Title}");
              
                 lesson.Course = existingCourse;
                 // lesson.Course.Title = existingCourse.Title;
@@ -122,7 +241,7 @@ namespace UpSkillz.Controllers
 
                     _context.Add(lesson);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction(nameof(Index), new { courseId = lesson.Course.CourseId });
                 }
 
                 _logger.LogInformation("Model is NOT valid.");
@@ -233,6 +352,43 @@ namespace UpSkillz.Controllers
         private bool LessonExists(int id)
         {
             return _context.Lessons.Any(e => e.LessonId == id);
+        }
+
+        private async void GetCourseFromUrl()
+        {
+             try
+            {
+                if (int.TryParse(Request.Query["courseId"], out int courseId))
+                {
+                    _logger.LogWarning($"Received courseId: {courseId}");
+                    var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+
+                    if (course == null)
+                    {
+                        ViewBag.status = "error";
+                        _logger.LogInformation("Course does not exist.");
+                        ViewBag.ErrorMessage = "Course does not exist.";
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}; Description: {course.Description}");
+                        ViewBag.courseId = course.CourseId;
+                        ViewBag.courseTitle = course.Title;
+                        ViewBag.courseDescription = course.Description;
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Invalid or missing courseId.");
+                    ViewBag.ErrorMessage = "Invalid or missing courseId.";
+                    ViewBag.courseId = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Exception: {ex.Message}", ex);
+                ViewBag.ErrorMessage = "An unexpected error occurred.";
+            }
         }
     }
 }

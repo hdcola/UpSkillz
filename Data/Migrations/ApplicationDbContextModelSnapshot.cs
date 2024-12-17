@@ -51,19 +51,19 @@ namespace UpSkillz.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "fe74de0c-8b42-4559-82c6-618b57d03b91",
+                            Id = "93c12aac-fbed-4a4a-943e-e789e9073000",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "74dd4210-f836-42cd-9ee1-12eaa24bb84f",
+                            Id = "b69525fd-b6f8-4cbf-ad66-b8b3352da510",
                             Name = "Instructor",
                             NormalizedName = "INSTRUCTOR"
                         },
                         new
                         {
-                            Id = "76e273b6-0bad-4a9f-9eef-067d54664ead",
+                            Id = "5f130bc0-0063-4d17-bbff-82067ed52300",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -204,6 +204,10 @@ namespace UpSkillz.Data.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("imageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CourseId");
 
