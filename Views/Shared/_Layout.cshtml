@@ -27,6 +27,17 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark"asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (User.IsInRole("Instructor")) 
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"asp-controller="Dashboard" asp-action="Index">Instructor</a>
+                            </li>
+                        }
+                        else {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark"asp-controller="Dashboard" asp-action="Index">Teach on UpSkillz</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" /> 
                     @if (User.Identity.IsAuthenticated)
