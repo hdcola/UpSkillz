@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -52,6 +53,7 @@ namespace UpSkillz.Controllers
         }
 
 
+
         // GET: Lessons?courseId=5
         public async Task<IActionResult> Index()
         {
@@ -66,32 +68,79 @@ namespace UpSkillz.Controllers
                     {
                         ViewBag.status = "error";
                         _logger.LogInformation("Course does not exist.");
-                        ViewBag.ErrorMessage = "Course does not exist.";
-                        return View();
+                        ViewBag.ErrorMessage = "Course does not exist.";                        
+                        return View(Enumerable.Empty<Lesson>()); // return empty list for view
                     }
-                    else
-                    {
                         _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}");
                         ViewBag.courseId = course.CourseId;
                         ViewBag.courseTitle = course.Title;
-                        return View(await _context.Lessons.Where(l => l.Course.CourseId == courseId).ToListAsync());
-                    }
+                        return View(await _context.Lessons
+                                    .Include(sl => sl.StudentsLessons)         
+                                    .Where(l => l.Course.CourseId == courseId).ToListAsync());
+                    
                 }
-                else
-                {
-                    _logger.LogWarning("Invalid or missing courseId.");
-                    ViewBag.ErrorMessage = "Invalid or missing courseId.";
-                    ViewBag.courseId = null;
-                    return View();
-                }
+                
+                _logger.LogWarning("Invalid or missing courseId.");
+                ViewBag.ErrorMessage = "Invalid or missing courseId.";
+                ViewBag.courseId = null;
+                return View(Enumerable.Empty<Lesson>());
+                
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Exception: {ex.Message}", ex);
-                ViewBag.ErrorMessage = "An unexpected error occurred.";                
-                return View();
+                ViewBag.ErrorMessage = "An unexpected error occurred.";
+                return View(Enumerable.Empty<Lesson>());
             }
         }
+
+
+    // POST: Lessons/CompleteLesson/{id}
+    [HttpGet]
+    public async Task<IActionResult> CompleteLesson(int id)
+    {
+        try
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (userId == null)
+            {
+                return BadRequest("User is not authenticated.");
+            }
+
+            var studentLesson = await _context.StudentsLessons
+                .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
+
+            if (studentLesson == null)
+            {
+                studentLesson = new StudentLesson
+                {
+                    LessonId = id,
+                    UserId = userId,
+                    IsCompleted = true
+                };
+
+                _context.StudentsLessons.Add(studentLesson);
+            }
+            else
+            {
+                // Mark it as completed if it already exists
+                studentLesson.IsCompleted = true;
+            }
+
+            // Save the changes to the database
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction("Index", new { courseId = ViewBag.courseId });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Error completing the lesson: {ex.Message}");
+            return RedirectToAction("Index", new { ErrorMessage = "An error occurred while completing the lesson." });
+        }
+    }
+
+
 
         // GET: Lessons/Details/5
         public async Task<IActionResult> Details(int? id)
