@@ -1,11 +1,17 @@
-@model UpSkillz.Models.Course
+@model IEnumerable<UpSkillz.Models.Course>
+
 
 @{
     Layout = "~/Views/Shared/_Layout.cshtml";
     ViewData["Title"] = "Explore the courses";
 }
 
-<h1>Explore the courses</h1>
+<h2 class="text-center my-4">Explore the courses</h2>
+
+    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 m-3" role="search">
+          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
+    </form>
+
 <main>
     @await Html.PartialAsync("~/Views/Courses/Cards.cshtml", Model)
 </main>

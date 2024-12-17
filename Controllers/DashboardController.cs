@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -6,18 +7,21 @@ using UpSkillz.Models;
 
 namespace UpSkillz.Controllers
 {
-    public class HomeController : Controller
+    public class DashboardController : Controller
     {
+       
         private readonly ApplicationDbContext _context;
-        private ILogger<HomeController> _logger;
+        private readonly UserManager<User> _userManager;
 
-        public HomeController(ApplicationDbContext context, ILogger<HomeController> logger)
+        private ILogger<DashboardController> _logger;
+
+        public DashboardController(ApplicationDbContext context, UserManager<User> userManager, ILogger<DashboardController> logger)
         {
             _context = context;
+            _userManager = userManager;
             _logger = logger;
         }
-
-        // GET: Courses
+        // GET: Courses     TODO:  for the logged user with the role Instructor or User
         public async Task<IActionResult> Index()
         {
             try
