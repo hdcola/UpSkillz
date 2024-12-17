@@ -96,26 +96,46 @@ namespace UpSkillz.Controllers
 
 
     // POST: Lessons/CompleteLesson/{id}
-    [HttpGet]
+    [HttpPost("Lessons/CompleteLesson/{id}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CompleteLesson(int id)
     {
         try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        {   
+            _logger.LogInformation($"lesson Id: {id}");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);            
+            _logger.LogInformation($"userId: {userId}");
 
             if (userId == null)
             {
                 return BadRequest("User is not authenticated.");
             }
+            
+            var lesson = await _context.Lessons
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.LessonId == id);
+
+            if (lesson == null)
+            {
+                _logger.LogWarning($"Lesson with ID {id} not found.");
+                return NotFound();
+            }
+            
+            var course = lesson.Course; 
+            _logger.LogInformation($"courseId: {course.CourseId}");
+            ViewBag.courseId = course.CourseId;
+
 
             var studentLesson = await _context.StudentsLessons
                 .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
+            
+            _logger.LogInformation($"studentLesson: {studentLesson}");
 
             if (studentLesson == null)
             {
                 studentLesson = new StudentLesson
                 {
-                    LessonId = id,
+                    LessonId = lesson.LessonId,
                     UserId = userId,
                     IsCompleted = true
                 };

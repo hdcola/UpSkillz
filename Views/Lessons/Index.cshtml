@@ -68,7 +68,24 @@
                              <button class="btn btn-secondary" disabled>Completed</button>
                         } else 
                         {
-                            <a href="#" class="btn btn-upskillz">Complete</a>
+                           <!-- <a href="#" class="btn btn-upskillz complete-lesson-btn" data-lesson-id="@lesson.LessonId">Complete</a>
+
+                             <a asp-controller="Lessons" asp-action="CompleteLesson" asp-route-id="@lesson.LessonId" class="btn btn-sm btn-upskillz">Complete</a>
+                            -->
+                                  
+
+
+                            <!--
+                            <form asp-controller="Lessons" asp-action="CompleteLesson" asp-route-id="@lesson.LessonId" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-upskillz">Complete</button>
+                            </form>-->
+
+                            <button class="complete-lesson-btn" data-lesson-id="@lesson.LessonId">Complete</button>
+
+
+                          
+
                         } 
 
             </div>
@@ -76,3 +93,5 @@
         }
     </div>
 </div>
+
+
