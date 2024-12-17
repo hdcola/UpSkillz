@@ -38,6 +38,15 @@ body {
   color: white;
 }
 
+.btn-outline-upskillz {
+  border-color: #00B050;
+  color: #00B050;
+}
+.btn-outline-upskillz:hover, .btn-outline-upskillz:active {
+  background-color: #00bb54;
+  color: white;
+}
+
 #registerForm .logo, #account .logo {
   height: 100px;
 }
@@ -51,4 +60,17 @@ body {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
   border: none; 
   border-radius: 0.25rem; 
+}
+
+
+#instructor-signup .banner {
+  background-color: #f0f0f0;
+  height: 450px;
+}
+#instructor-dashboard .banner {
+  background-color: #f0f0f0;
+  height: 300px;
+}
+#instructor-dashboard h1 {
+  font-size: 1.5rem;
 }
