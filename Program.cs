@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UpSkillz.Data;
 using UpSkillz.Models;
+using UpSkillz.Services;
 using DotEnv = dotenv.net.DotEnv;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -33,8 +34,8 @@ builder.Services.AddIdentity<User, IdentityRole>(options =>
     .AddDefaultTokenProviders()
     .AddDefaultUI();
 builder.Services.AddRazorPages();
-// builder.Services.AddControllersWithViews();
 builder.Services.AddSingleton<BlobStorageService>();
+builder.Services.AddSingleton<StripeService>();
 builder.Services.AddRazorPages(o => o.RootDirectory = "/Home");
 
 // Configure Logging
