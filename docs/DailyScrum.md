@@ -160,9 +160,12 @@
 #### Iana
 
 ##### Done since last scrum
-- 
+- Showing Lessons for the course enrolled
+- Complete Lessons ajax, added cors for ajax
+- Added embedded video
 ##### To do until next scrum
-- 
+- Will add images to courses cards
+- Will show the list of enrolled courses for the User (not Instructor)
 ##### Need assistance with
 -
 
@@ -170,20 +173,23 @@
 #### Tamara
 
 ##### Done since last scrum
-- 
+- Implement user to instructor option
+- Help fix image upload and reuse it in forms
 ##### To do until next scrum
-- 
+- Instructor portal
+- Add/Create courses
 ##### Need assistance with
 -
 
 #### Danny
 
 ##### Done since last scrum
-- 
+- Learning stripe implementation at the checkout 
 ##### To do until next scrum
-- 
+- enroll and Checkout
 ##### Need assistance with
 -
+
 
 
 
