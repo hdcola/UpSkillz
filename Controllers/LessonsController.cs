@@ -67,42 +67,76 @@ namespace UpSkillz.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);                
-                _logger.LogInformation($"User Id: {userId}");
+                _logger.LogInformation($"Logged User Id: {userId ?? null}");
 
                 if (userId == null) {
+                    // TODO: redirect to login
                     return RedirectToAction("Index", "Home");
                 }
+                 
 
                 if (int.TryParse(Request.Query["courseId"], out int courseId))
                 {
-                    _logger.LogWarning($"Received courseId: {courseId}");
-                    // var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+                    _logger.LogInformation($"Received courseId: {courseId }");                
 
+                    var course = await _context.Courses
+                        .Include(c => c.Instructor)
+                        .FirstOrDefaultAsync(m => m.CourseId == courseId);
 
-                    var enrollment = await _context.Enrollments
-                        .Include(e => e.Course)
-                        .FirstOrDefaultAsync(e => e.Course.CourseId == courseId && e.Student.Id == userId);
-
-                    if (enrollment == null)
-                    {
-                        _logger.LogInformation("User is not enrolled in the course or course does not exist.");
+                    if (course == null){                        
+                        ViewBag.ErrorMessage = "Invalid or missing courseId";
                         return View(Enumerable.Empty<Lesson>());
+                    } else {
+      
+                        var instructor = course.Instructor;
+                        if (instructor == null)
+                        {
+                            _logger.LogWarning("No instructor found for course ID: {id}", courseId);
+                        }
+                        else
+                        {
+                            ViewBag.instructorId = instructor.Id;
+                        }
+
+                        if (userId == course.Instructor.Id)
+                        {
+                            var lessons = await _context.Lessons
+                                .Where(l => l.Course.CourseId == courseId)
+                                .ToListAsync();
+
+                                return View(lessons);
+
+                        } else {
+                            var enrollment = await _context.Enrollments
+                                .Include(e => e.Course)
+                                .FirstOrDefaultAsync(e => e.Course.CourseId == courseId && e.Student.Id == userId);
+
+                            if (enrollment == null)
+                            {
+                                _logger.LogInformation("User is not enrolled in the course or course does not exist.");
+                                return View(Enumerable.Empty<Lesson>());
+                            }
+
+                            ViewBag.Enrolled = true;
+                            ViewBag.courseTitle = enrollment.Course.Title;
+                            
+
+                            _logger.LogInformation($"User is enrolled in course: {enrollment.Course.Title}");
+                            ViewBag.courseId = enrollment.Course.CourseId;
+                            ViewBag.courseTitle = enrollment.Course.Title;
+
+                            var lessons = await _context.Lessons
+                                .Include(l => l.StudentsLessons.Where(sl => sl.UserId == userId))
+                                .Where(l => l.Course.CourseId == enrollment.Course.CourseId)
+                                .ToListAsync();
+
+                            return View(lessons);
+
+                        }
+
+
+                        
                     }
-
-                    ViewBag.Enrolled = true;
-                    ViewBag.courseTitle = enrollment.Course.Title;
-                    
-
-                    _logger.LogInformation($"User is enrolled in course: {enrollment.Course.Title}");
-                    ViewBag.courseId = enrollment.Course.CourseId;
-                    ViewBag.courseTitle = enrollment.Course.Title;
-
-                    var lessons = await _context.Lessons
-                        .Include(l => l.StudentsLessons.Where(sl => sl.UserId == userId))
-                        .Where(l => l.Course.CourseId == enrollment.Course.CourseId)
-                        .ToListAsync();
-
-                    return View(lessons);
 
                 }
 
@@ -114,7 +148,7 @@ namespace UpSkillz.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Exception: {ex.Message}", ex);
+                _logger.LogError($"Exception: {ex.Message}");
                 ViewBag.ErrorMessage = "An unexpected error occurred.";
                 return View(Enumerable.Empty<Lesson>());
             }

@@ -81,7 +81,7 @@ namespace UpSkillz.Controllers
             ViewBag.Enrolled = false;
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Explore", "Courses");
             }
 
             var course = await _context.Courses
@@ -90,7 +90,7 @@ namespace UpSkillz.Controllers
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {
-                return NotFound();
+                return RedirectToAction("Explore", "Courses");
             }
             /*var instructor = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);*/
