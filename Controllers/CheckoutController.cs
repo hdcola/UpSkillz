@@ -51,6 +51,11 @@ namespace UpSkillz.Controllers
             ViewBag.UserName = userName;
             ViewBag.Email = email;
 
+            if (course.Price == 0)
+            {
+                return View("Free", course);
+            }
+
             return View(course);
         }
 
@@ -102,6 +107,54 @@ namespace UpSkillz.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error creating payment intent for amount: {Amount}", paymentModel.Amount);
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ProcessFreeEnrollment([FromBody] EnrollmentModel enrollmentModel)
+        {
+            try
+            {
+                // Get the current user
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                var student = _context.Users.FirstOrDefault(u => u.Id == userId);
+
+                // Get the course
+                var course = _context.Courses.FirstOrDefault(c => c.CourseId == enrollmentModel.CourseId);
+
+                if (course == null)
+                {
+                    _logger.LogError("Course not found for ID: {CourseId}", enrollmentModel.CourseId);
+                    return NotFound("Course not found");
+                }
+
+                if (student == null)
+                {
+                    _logger.LogError("User not found for ID: {UserId}", userId);
+                    return NotFound("User not found");
+                }
+
+                // Create a new enrollment
+                var enrollment = new Enrollment
+                {
+                    Student = student,
+                    Course = course,
+                    Amount = 0, // Free course
+                    EnrollmentDate = DateTime.Now,
+                    Status = EnrollmentStatus.Active,
+                    PaymentReference = "Free"
+                };
+
+                // Save the enrollment to the database
+                _context.Enrollments.Add(enrollment);
+                _context.SaveChanges();
+
+                return Ok(new { message = "Enrollment successful" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error processing free enrollment for course ID: {CourseId}", enrollmentModel.CourseId);
                 return BadRequest(new { error = ex.Message });
             }
         }
