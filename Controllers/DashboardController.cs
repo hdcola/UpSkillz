@@ -64,5 +64,26 @@ namespace UpSkillz.Controllers
 
             return RedirectToAction("Index");
         }
+
+        // GET: Dashboard/Course/5
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Course(int id)
+        {
+            _logger.LogInformation($"Course {id} Lessons");
+            var user = await _userManager.GetUserAsync(User);
+
+            var course = await _context.Courses
+                .Include(c => c.Lessons)
+                .Where(c => c.CourseId == id)
+                .FirstOrDefaultAsync();
+
+            if (course == null || course.Instructor != user)
+            {
+                _logger.LogInformation("Invalid Instructor");
+                return RedirectToAction("Index");
+            }
+
+            return View(course);
+        }
     }
 }

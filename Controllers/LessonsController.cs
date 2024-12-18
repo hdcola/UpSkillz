@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +12,14 @@ namespace UpSkillz.Controllers
     public class LessonsController : Controller
     {
         private readonly ApplicationDbContext _context;
+
+        private readonly UserManager<User> _userManager;
         private ILogger<LessonsController> _logger;
 
-        public LessonsController(ApplicationDbContext context, ILogger<LessonsController> logger)
+        public LessonsController(ApplicationDbContext context, UserManager<User> userManager, ILogger<LessonsController> logger)
         {
             _context = context;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -248,7 +253,7 @@ namespace UpSkillz.Controllers
         }
 
 
-
+        /*
         // POST: Lessons/Create?courseId=5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.        
@@ -311,56 +316,141 @@ namespace UpSkillz.Controllers
             }
 
         }
+        */
 
-
-        // GET: Lessons/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Lesson(int courseId, int? id)
         {
-            if (id == null)
+            var lesson = new Lesson();
+
+            // Get course
+            var user = await _userManager.GetUserAsync(User);
+            var course = await _context.Courses.FindAsync(courseId);
+
+            if (course == null || course.Instructor != user)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Dashboard");
+            }
+            else
+            {
+                _logger.LogInformation($"Modifying course {courseId}");
+                lesson.Course = course;
             }
 
-            var lesson = await _context.Lessons.FindAsync(id);
-            if (lesson == null)
+            if (id != null)
             {
-                return NotFound();
+                var found = await _context.Lessons
+                    .Include(l => l.Course)
+                    .FirstOrDefaultAsync(l => l.LessonId == id);
+
+                if (found != null && found.Course.Instructor == user)
+                {
+                    _logger.LogInformation("Found existing lesson");
+                    lesson = found;
+                    ViewBag.EditMode = true;
+                }
+            }
+
+            return View(lesson);
+        }
+
+        // POST: Lessons/Lesson
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Create([Bind("Title,Content,VideoUrl,Duration,Course")] Lesson lesson, int courseId)
+        {
+            // Get the course
+            var user = await _userManager.GetUserAsync(User);
+            var course = await _context.Courses.FindAsync(courseId);
+
+            if (course == null || course.Instructor != user)
+            {
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            lesson.Course = course;
+            ModelState.Clear();
+
+            if (TryValidateModel(lesson))
+            {
+                // TODO: Migrate database to support Null
+                if (lesson.VideoUrl == null)
+                {
+                    lesson.VideoUrl = string.Empty;
+                }
+                _context.Add(lesson);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("ILogger: Lesson was saved to database.");
+
+                return RedirectToAction("Course", "Dashboard", new { id = courseId });
+            }
+
+            _logger.LogInformation("ILogger: Model is NOT valid.");
+            foreach (var state in ModelState)
+            {
+                var field = state.Key;
+                foreach (var error in state.Value.Errors)
+                {
+                    _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
+                }
             }
             return View(lesson);
         }
 
-        // POST: Lessons/Edit/5
+
+        // GET: Lessons/Edit/5
+        /*[HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var lesson = await _context.Lessons
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.LessonId == id);
+
+            if (lesson == null || lesson.Course.Instructor != user)
+            {
+                return NotFound();
+            }
+            return View(lesson);
+        }*/
+
+        // POST: Lessons/Lesson/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("LessonId,Title,Content,VideoUrl,Duration,CreatedAt,UpdatedAt")] Lesson lesson)
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Edit([Bind("LessonId,Title,Content,VideoUrl,Duration")] Lesson lesson, int courseId)
         {
-            if (id != lesson.LessonId)
+            var user = await _userManager.GetUserAsync(User);
+            var course = await _context.Courses.FindAsync(courseId);
+
+            if (course == null || course.Instructor != user)
             {
-                return NotFound();
+                return RedirectToAction("Index", "Dashboard");
             }
 
-            if (ModelState.IsValid)
+            lesson.Course = course;
+            ModelState.Clear();
+
+            if (TryValidateModel(lesson))
             {
-                try
+                // TODO: Migrate database to support Null
+                if (lesson.VideoUrl == null)
                 {
-                    _context.Update(lesson);
-                    await _context.SaveChangesAsync();
+                    lesson.VideoUrl = string.Empty;
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!LessonExists(lesson.LessonId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+
+                _context.Update(lesson);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Course", "Dashboard", new { id = courseId });
             }
+
             return View(lesson);
         }
 

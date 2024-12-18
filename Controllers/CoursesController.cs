@@ -82,7 +82,7 @@ namespace UpSkillz.Controllers
                 var found = await _context.Courses.FindAsync(id);
                 var user = await _userManager.GetUserAsync(User);
 
-                if (found.Instructor == user)
+                if (found != null && found.Instructor == user)
                 {
                     _logger.LogInformation("Found existing course");
                     course = found;
