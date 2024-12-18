@@ -12,11 +12,12 @@ public class Enrollment
     public Course Course { get; set; } = null!;
 
     [Required]
-    public User Student { get; set; } =  null!;
+    public User Student { get; set; } = null!;
 
     [Column(TypeName = "decimal(10, 2)")]
     public decimal Amount { get; set; }
 
+    [DisplayFormat(DataFormatString = "{0:dd MMMM yyyy}")]
     [DataType(DataType.DateTime)]
     public DateTime EnrollmentDate { get; set; } = DateTime.Now;
 

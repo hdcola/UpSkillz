@@ -1,0 +1,38 @@
+@page
+@model PurchaseHistoryModel
+@{
+    ViewData["Title"] = "Purchase History";
+    ViewData["ActivePage"] = ManageNavPages.PurchaseHistory;
+}
+
+<h3>@ViewData["Title"]</h3>
+<partial name="_StatusMessage" for="StatusMessage" />
+<div class="row">
+    <div class="col">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Course</th>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Payment Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var payment in Model.Payments)
+                {
+                    <tr>
+                        <td>@payment.Course.Title</td>
+                        <td>@Html.DisplayFor(x => payment.EnrollmentDate, "Date")</td>
+                        <td>@payment.Amount.ToString("C")</td>
+                        <td>@payment.PaymentReference</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
