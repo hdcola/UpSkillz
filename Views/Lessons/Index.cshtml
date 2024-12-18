@@ -57,13 +57,16 @@
                  id="v-pills-@lesson.LessonId"
                  role="tabpanel"
                  aria-labelledby="v-pills-@lesson.LessonId-tab">
-                <h4>@lesson.Title</h4>
+                <h4 class="mb-4">@lesson.Title</h4>
 
                 @if (@lesson.VideoUrl != "") {
-                    <iframe width="560" height="315" src="@lesson.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                    <div>
+                        <iframe width="560" height="315" src="@lesson.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+                    </div>
                 }
 
-                <p>@lesson.Content</p>
+                <p class="my-4">@lesson.Content</p>
                 
                 @if (lesson.StudentsLessons?.Any(sl => sl.IsCompleted) == true)
                 {
