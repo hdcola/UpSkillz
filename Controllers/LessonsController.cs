@@ -64,7 +64,7 @@ namespace UpSkillz.Controllers
                     _logger.LogWarning($"Received courseId: {courseId}");
                     // var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
 
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     _logger.LogInformation($"User Id: {userId}");
                     /*
                     if (course == null)
@@ -98,19 +98,19 @@ namespace UpSkillz.Controllers
                     ViewBag.courseTitle = enrollment.Course.Title;
 
                     var lessons = await _context.Lessons
-                        .Include(l => l.StudentsLessons)
+                        .Include(l => l.StudentsLessons.Where(sl => sl.UserId == userId))
                         .Where(l => l.Course.CourseId == enrollment.Course.CourseId)
                         .ToListAsync();
 
                     return View(lessons);
 
                 }
-                
+
                 _logger.LogWarning("Invalid or missing courseId.");
                 ViewBag.ErrorMessage = "Invalid or missing courseId.";
                 ViewBag.courseId = null;
                 return View(Enumerable.Empty<Lesson>());
-                
+
             }
             catch (Exception ex)
             {
@@ -121,70 +121,70 @@ namespace UpSkillz.Controllers
         }
 
 
-    // POST: Lessons/CompleteLesson/{id}
-    [HttpPost("Lessons/CompleteLesson/{id}")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> CompleteLesson(int id)
-    {
-        try
-        {   
-            _logger.LogInformation($"lesson Id: {id}");
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);            
-            _logger.LogInformation($"userId: {userId}");
-
-            if (userId == null)
-            {
-                return BadRequest("User is not authenticated.");
-            }
-            
-            var lesson = await _context.Lessons
-                .Include(l => l.Course)
-                .FirstOrDefaultAsync(l => l.LessonId == id);
-
-            if (lesson == null)
-            {
-                _logger.LogWarning($"Lesson with ID {id} not found.");
-                return NotFound();
-            }
-            
-            var course = lesson.Course; 
-            _logger.LogInformation($"courseId: {course.CourseId}");
-            ViewBag.courseId = course.CourseId;
-
-
-            var studentLesson = await _context.StudentsLessons
-                .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
-            
-            _logger.LogInformation($"studentLesson: {studentLesson}");
-
-            if (studentLesson == null)
-            {
-                studentLesson = new StudentLesson
-                {
-                    LessonId = id,
-                    UserId = userId,
-                    IsCompleted = true
-                };
-
-                _context.StudentsLessons.Add(studentLesson);
-            }
-            else
-            {
-                // Mark it as completed if it already exists
-                studentLesson.IsCompleted = true;
-            }
-
-            // Save the changes to the database
-            await _context.SaveChangesAsync();
-
-            return RedirectToAction("Index", new { courseId = ViewBag.courseId });
-        }
-        catch (Exception ex)
+        // POST: Lessons/CompleteLesson/{id}
+        [HttpPost("Lessons/CompleteLesson/{id}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CompleteLesson(int id)
         {
-            _logger.LogError($"Error completing the lesson: {ex.Message}");
-            return RedirectToAction("Index", new { ErrorMessage = "An error occurred while completing the lesson." });
+            try
+            {
+                _logger.LogInformation($"lesson Id: {id}");
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                _logger.LogInformation($"userId: {userId}");
+
+                if (userId == null)
+                {
+                    return BadRequest("User is not authenticated.");
+                }
+
+                var lesson = await _context.Lessons
+                    .Include(l => l.Course)
+                    .FirstOrDefaultAsync(l => l.LessonId == id);
+
+                if (lesson == null)
+                {
+                    _logger.LogWarning($"Lesson with ID {id} not found.");
+                    return NotFound();
+                }
+
+                var course = lesson.Course;
+                _logger.LogInformation($"courseId: {course.CourseId}");
+                ViewBag.courseId = course.CourseId;
+
+
+                var studentLesson = await _context.StudentsLessons
+                    .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
+
+                _logger.LogInformation($"studentLesson: {studentLesson}");
+
+                if (studentLesson == null)
+                {
+                    studentLesson = new StudentLesson
+                    {
+                        LessonId = id,
+                        UserId = userId,
+                        IsCompleted = true
+                    };
+
+                    _context.StudentsLessons.Add(studentLesson);
+                }
+                else
+                {
+                    // Mark it as completed if it already exists
+                    studentLesson.IsCompleted = true;
+                }
+
+                // Save the changes to the database
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", new { courseId = ViewBag.courseId });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"Error completing the lesson: {ex.Message}");
+                return RedirectToAction("Index", new { ErrorMessage = "An error occurred while completing the lesson." });
+            }
         }
-    }
 
 
 
@@ -202,7 +202,7 @@ namespace UpSkillz.Controllers
             {
                 return NotFound();
             }
-        
+
             return View(lesson);
         }
 
@@ -257,9 +257,9 @@ namespace UpSkillz.Controllers
         public async Task<IActionResult> Create([Bind("LessonId,Title,Content,Course")] Lesson lesson, int courseId)
         {
             _logger.LogInformation($"Start creating lesson for course {courseId}");
-             
-           try 
-           {    
+
+            try
+            {
                 var existingCourse = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
                 if (existingCourse == null)
                 {
@@ -269,7 +269,7 @@ namespace UpSkillz.Controllers
                     return View(lesson);
                 }
                 _logger.LogInformation($"Course with Id: {existingCourse.CourseId} ->  Title: {existingCourse.Title}");
-             
+
                 lesson.Course = existingCourse;
                 // lesson.Course.Title = existingCourse.Title;
                 // lesson.Course.Description = existingCourse.Description;
@@ -281,7 +281,8 @@ namespace UpSkillz.Controllers
                 ModelState.Clear();
                 TryValidateModel(lesson);
 
-                if (ModelState.IsValid) {       
+                if (ModelState.IsValid)
+                {
                     lesson.CreatedAt = DateTime.UtcNow;
                     lesson.UpdatedAt = DateTime.UtcNow;
 
@@ -301,13 +302,14 @@ namespace UpSkillz.Controllers
                 ViewBag.courseId = courseId;
                 return View(lesson);
 
-           } catch(Exception ex)
-           {
+            }
+            catch (Exception ex)
+            {
                 _logger.LogWarning($"ILogger: exception -> {ex}");
                 ModelState.AddModelError(string.Empty, "An unexpected error occurred.");
                 return View(lesson);
-           }
-            
+            }
+
         }
 
 
@@ -402,7 +404,7 @@ namespace UpSkillz.Controllers
 
         private async void GetCourseFromUrl()
         {
-             try
+            try
             {
                 if (int.TryParse(Request.Query["courseId"], out int courseId))
                 {
