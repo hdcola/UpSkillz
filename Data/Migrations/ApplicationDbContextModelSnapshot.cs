@@ -51,19 +51,19 @@ namespace UpSkillz.Data.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "93c12aac-fbed-4a4a-943e-e789e9073000",
+                            Id = "29f6602d-21a2-49a7-a520-bc8f73b0a3c8",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "b69525fd-b6f8-4cbf-ad66-b8b3352da510",
+                            Id = "b0c275c1-6909-434e-937b-1ccae22af564",
                             Name = "Instructor",
                             NormalizedName = "INSTRUCTOR"
                         },
                         new
                         {
-                            Id = "5f130bc0-0063-4d17-bbff-82067ed52300",
+                            Id = "9fb25e83-1d16-4f79-b633-5a208931d69a",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -232,6 +232,10 @@ namespace UpSkillz.Data.Migrations
 
                     b.Property<DateTime>("EnrollmentDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("PaymentReference")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");

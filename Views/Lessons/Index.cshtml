@@ -58,21 +58,43 @@
                  role="tabpanel"
                  aria-labelledby="v-pills-@lesson.LessonId-tab">
                 <h4>@lesson.Title</h4>
+
+                @if (@lesson.VideoUrl != "") {
+                    <iframe width="560" height="315" src="@lesson.VideoUrl" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                }
+
                 <p>@lesson.Content</p>
-
-
                 
-                        @if (lesson.StudentsLessons?.Any(sl => sl.IsCompleted) == true)
-                        {
-                            <!-- disabled button "Completed" -->
-                             <button class="btn btn-secondary" disabled>Completed</button>
-                        } else 
-                        {
-                            <a href="#" class="btn btn-upskillz">Complete</a>
-                        } 
+                @if (lesson.StudentsLessons?.Any(sl => sl.IsCompleted) == true)
+                {
+                    <!-- disabled button "Completed" -->
+                        <button class="btn btn-secondary" disabled>Completed</button>
+                } else 
+                {
+                    <!-- <a href="#" class="btn btn-upskillz complete-lesson-btn" data-lesson-id="@lesson.LessonId">Complete</a>
+
+                        <a asp-controller="Lessons" asp-action="CompleteLesson" asp-route-id="@lesson.LessonId" class="btn btn-sm btn-upskillz">Complete</a>
+                    -->
+                            
+
+
+                    <!--
+                    <form asp-controller="Lessons" asp-action="CompleteLesson" asp-route-id="@lesson.LessonId" method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="btn btn-sm btn-upskillz">Complete</button>
+                    </form>-->
+
+                    <button class="btn btn-upskillz complete-lesson-btn" data-lesson-id="@lesson.LessonId">Complete</button>
+
+
+                    
+
+                } 
 
             </div>
             isFirst = false; // mark next items as not the first
         }
     </div>
 </div>
+
+

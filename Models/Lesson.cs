@@ -6,7 +6,7 @@ public class Lesson
     public int LessonId { get; set; }
 
     [Required]
-    public Course Course { get; set; } = new Course();
+    public Course Course { get; set; } =  null!;
 
     [Required(ErrorMessage = "Lesson title is required.")]
     [StringLength(100, MinimumLength = 1)]

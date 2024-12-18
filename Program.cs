@@ -38,11 +38,23 @@ builder.Services.AddSingleton<BlobStorageService>();
 builder.Services.AddSingleton<StripeService>();
 builder.Services.AddRazorPages(o => o.RootDirectory = "/Home");
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+    {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+
 // Configure Logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
 var app = builder.Build();
+
+app.UseCors();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -60,6 +72,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
 
 app.MapControllerRoute(
     name: "default",
