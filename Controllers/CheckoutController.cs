@@ -89,7 +89,8 @@ namespace UpSkillz.Controllers
                     Course = course,
                     Amount = course.Price, // Convert cents to decimal
                     EnrollmentDate = DateTime.Now,
-                    Status = EnrollmentStatus.Active
+                    Status = EnrollmentStatus.Active,
+                    PaymentReference = paymentIntent.Id
                 };
 
                 // Save the enrollment to the database
