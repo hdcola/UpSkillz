@@ -62,8 +62,11 @@ namespace UpSkillz.Controllers
                 if (int.TryParse(Request.Query["courseId"], out int courseId))
                 {
                     _logger.LogWarning($"Received courseId: {courseId}");
-                    var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+                    // var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
 
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+                    _logger.LogInformation($"User Id: {userId}");
+                    /*
                     if (course == null)
                     {
                         ViewBag.status = "error";
@@ -75,9 +78,32 @@ namespace UpSkillz.Controllers
                         ViewBag.courseId = course.CourseId;
                         ViewBag.courseTitle = course.Title;
                         return View(await _context.Lessons
-                                    .Include(sl => sl.StudentsLessons)         
-                                    .Where(l => l.Course.CourseId == courseId).ToListAsync());
-                    
+                                .Include(sl => sl.StudentsLessons)                                     
+                                .Where(sl => sl.StudentsLessons.UserId == userId)        
+                                .Where(l => l.Course.CourseId == courseId).ToListAsync());
+                    */
+
+                    var enrollment = await _context.Enrollments
+                        .Include(e => e.Course)
+                        .FirstOrDefaultAsync(e => e.Course.CourseId == courseId && e.Student.Id == userId);
+
+                    if (enrollment == null)
+                    {
+                        _logger.LogInformation("User is not enrolled in the course or course does not exist.");
+                        return View(Enumerable.Empty<Lesson>());
+                    }
+
+                    _logger.LogInformation($"User is enrolled in course: {enrollment.Course.Title}");
+                    ViewBag.courseId = enrollment.Course.CourseId;
+                    ViewBag.courseTitle = enrollment.Course.Title;
+
+                    var lessons = await _context.Lessons
+                        .Include(l => l.StudentsLessons)
+                        .Where(l => l.Course.CourseId == enrollment.Course.CourseId)
+                        .ToListAsync();
+
+                    return View(lessons);
+
                 }
                 
                 _logger.LogWarning("Invalid or missing courseId.");
