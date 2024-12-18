@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UpSkillz.Data;
 using UpSkillz.Models;
+using UpSkillz.Services;
 
 namespace UpSkillz.Controllers
 {
@@ -120,7 +121,6 @@ namespace UpSkillz.Controllers
 
                 _context.Add(course);
                 await _context.SaveChangesAsync();
-
                 _logger.LogInformation("ILogger: Course was saved to database.");
                 return RedirectToAction("Index", "Dashboard");
             }

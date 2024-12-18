@@ -1,95 +1,155 @@
-@model UpSkillz.Models.Lesson
+@model UpSkillz.Models.Course
+@using System.Text.Json
 
 @{
-    Layout = "~/Views/Shared/_Layout.cshtml";
-    ViewData["Title"] = "Checkout form";
+  Layout = "~/Views/Shared/_Layout.cshtml";
+  ViewData["Title"] = "Checkout form";
 }
 
 <main>
-    <div class="py-5 text-center">      
-      <h2>Checkout form</h2>
-      <p class="lead">Below is an example form built entirely with Bootstrap’s form controls. Each required form group has a validation state that can be triggered by attempting to submit the form without completing it.</p>
+  <div class="py-5 text-center">
+    <h2>Checkout form</h2>
+  </div>
+
+  <div class="row g-5">
+    <div class="col-md-5 col-lg-4 order-md-last">
+      <h4 class="d-flex justify-content-between align-items-center mb-3">
+        <span class="text-primary">Your cart</span>
+        <span class="badge bg-primary rounded-pill">1</span>
+      </h4>
+      <ul class="list-group mb-3">
+        <li class="list-group-item d-flex justify-content-between lh-sm">
+          <div>
+            <h5 class="my-0 text-primary">@Model.Title</h5>
+            <small class="text-body-secondary">
+              @(Model.Description.Length > 255 ? Model.Description.Substring(0, 255) + "..." : Model.Description)
+            </small>
+          </div>
+          <span class="text-body-secondary">$@Model.Price</span>
+        </li>
+        <li class="list-group-item d-flex justify-content-between lh-sm">
+          <div>
+            <h5 class="my-0 text-primary">Instructor: <span
+                class="text-body-secondary">@Model.Instructor.UserName</span>
+            </h5>
+          </div>
+
+        </li>
+
+        @* <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+          <div class="text-success">
+            <h6 class="my-0">Promo code</h6>
+            <small>EXAMPLECODE</small>
+          </div>
+          <span class="text-success">−$5</span>
+        </li> *@
+        <li class="list-group-item d-flex justify-content-between">
+          <span>Total (USD)</span>
+          <strong>$@Model.Price</strong>
+        </li>
+      </ul>
+
+      @* <form class="card p-2">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Promo code">
+          <button type="submit" class="btn btn-secondary">Redeem</button>
+        </div>
+      </form> *@
     </div>
 
-    <div class="row g-5">
-      <div class="col-md-5 col-lg-4 order-md-last">
-        <h4 class="d-flex justify-content-between align-items-center mb-3">
-          <span class="text-primary">Your cart</span>
-          <span class="badge bg-primary rounded-pill">1</span>
-        </h4>
-        <ul class="list-group mb-3">
-          <li class="list-group-item d-flex justify-content-between lh-sm">
-            <div>
-              <h5 class="my-0 text-primary">Course title</h5>
-              <small class="text-body-secondary">Brief description</small>
-            </div>
-            <span class="text-body-secondary">$20</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
-            <div class="text-success">
-              <h6 class="my-0">Promo code</h6>
-              <small>EXAMPLECODE</small>
-            </div>
-            <span class="text-success">−$5</span>
-          </li>
-          <li class="list-group-item d-flex justify-content-between">
-            <span>Total (USD)</span>
-            <strong>$15</strong>
-          </li>
-        </ul>
+    <div class="col-md-7 col-lg-8">
+      <form id="payment-form">
+        <h4 class="mb-3">Payment</h4>
+        <label for="cc-number" class="form-label">Credit card information</label>
+        <div id="card-element">
+          <!-- A Stripe Element will be inserted here. -->
+        </div>
+        <hr class="my-4">
 
-        <form class="card p-2">
-          <div class="input-group">
-            <input type="text" class="form-control" placeholder="Promo code">
-            <button type="submit" class="btn btn-secondary">Redeem</button>
-          </div>
-        </form>
-      </div>
-      <div class="col-md-7 col-lg-8">
-        <form  asp-action="Proceed">
-          <h4 class="mb-3">Payment</h4>
+        <div id="payment-result" class="alert d-none mb-3"></div>
 
-          <div class="my-3">
-            <div class="form-check">
-              <input id="debit" name="paymentMethod" type="radio" checked class="form-check-input" required="">
-              <label class="form-check-label" for="debit">Credit card</label>
-            </div>
-            <div class="form-check">
-              <input id="paypal" name="paymentMethod" type="radio" class="form-check-input" required="">
-              <label class="form-check-label" for="paypal">PayPal</label>
-            </div>
-          </div>
-
-          <div class="row gy-3">
-            <div class="col-md-6">
-              <label for="cc-number" class="form-label">Credit card number</label>
-              <input type="text" class="form-control" id="cc-number" placeholder="" required="">
-              <div class="invalid-feedback">
-                Credit card number is required
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label for="cc-expiration" class="form-label">Expiration</label>
-              <input type="text" class="form-control" id="cc-expiration" placeholder="" required="">
-              <div class="invalid-feedback">
-                Expiration date required
-              </div>
-            </div>
-
-            <div class="col-md-3">
-              <label for="cc-cvv" class="form-label">CVV</label>
-              <input type="text" class="form-control" id="cc-cvv" placeholder="" required="">
-              <div class="invalid-feedback">
-                Security code required
-              </div>
-            </div>
-          </div>
-
-          <hr class="my-4">
-
-          <button class="w-100 btn btn-primary btn-lg" type="submit">Continue to checkout</button>
-        </form>
-      </div>
+        <button class="w-100 btn btn-primary btn-lg" type="submit">Pay</button>
+        <div id="continue"></div>
+      </form>
     </div>
-  </main>
+  </div>
+</main>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  const stripe = Stripe('@ViewBag.PublishableKey');
+  const elements = stripe.elements();
+  const cardElement = elements.create('card');
+  cardElement.mount('#card-element');
+
+  const userName = @Html.Raw(JsonSerializer.Serialize(ViewBag.UserName));
+  const email = @Html.Raw(JsonSerializer.Serialize(ViewBag.Email));
+  const amount = @((int)(Model.Price * 100)); // Convert to cents
+  const courseId = @Model.CourseId;
+
+  const form = document.getElementById('payment-form');
+  const resultContainer = document.getElementById('payment-result');
+
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    // Show loading state
+    const submitButton = form.querySelector('button');
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Processing...';
+
+    const response = await fetch('/Checkout/CreatePaymentIntent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        Name: userName,
+        Email: email,
+        Amount: amount,
+        CourseId: courseId
+      })
+    });
+    const { clientSecret } = await response.json();
+
+    const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+      payment_method: {
+        card: cardElement
+      }
+    });
+
+    resultContainer.classList.remove('d-none', 'alert-success', 'alert-danger');
+
+    if (error) {
+      resultContainer.classList.add('alert-danger');
+      resultContainer.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-x-circle-fill text-danger me-2"></i>
+          <span>${error.message}</span>
+        </div>`;
+      // Reset button state
+      submitButton.disabled = false;
+      submitButton.innerHTML = 'Pay';
+    } else {
+      resultContainer.classList.add('alert-success');
+      resultContainer.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-check-circle-fill text-success me-2"></i>
+          <span>Payment Successful!</span>
+        </div>
+        <small class="d-block mt-1">Payment ID: ${paymentIntent.id}</small>`;
+
+      // Remove submitButton
+      submitButton.remove();
+
+      // Create continue button
+      const continueButton = document.createElement('button');
+      continueButton.classList.add('w-100', 'btn', 'btn-success', 'btn-lg', 'mt-3');
+      continueButton.textContent = 'Continue';
+      document.getElementById('continue').appendChild(continueButton);
+
+      // Redirect to '/' when continue button is clicked
+      continueButton.addEventListener('click', () => {
+        window.location.href = '/';
+      });
+    }
+  });
+</script>
