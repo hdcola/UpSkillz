@@ -1,3 +1,4 @@
+@using System.Security.Claims
 @model UpSkillz.Models.Course
 
 @{
@@ -73,8 +74,17 @@
             class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Start learning</a>
 
         } else {
-            <a asp-controller="Checkout" asp-action="Index" asp-route-cid="@Model.CourseId"
-            class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Enroll now</a>
+
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (User.IsInRole("Instructor") && currentUserId == ViewBag.InstructorId)
+            {                
+                <a asp-controller="Courses" asp-action="Course" asp-route-id="@Model.CourseId"
+                class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Manage the course</a>
+            } else if (User.IsInRole("User") || User.IsInRole("Admin")){
+                <a asp-controller="Checkout" asp-action="Index" asp-route-cid="@Model.CourseId"
+                class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Enroll now</a>
+            }
         }
 
         
