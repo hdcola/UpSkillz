@@ -22,7 +22,7 @@
                         <h5 class="my-0 text-primary">@Model.Title</h5>
                         <small class="text-body-secondary">
                             @(Model.Description.Length > 255 ? Model.Description.Substring(0, 255) + "..." :
-                                Model.Description)
+                                    Model.Description)
                         </small>
                     </div>
                     <span class="text-success">Free</span>
@@ -88,7 +88,7 @@
                 document.getElementById('continue').appendChild(continueButton);
 
                 continueButton.addEventListener('click', () => {
-                    window.location.href = '/';
+                    window.location.href = '/Dashboard/Enrolled';
                 });
             } else {
                 throw new Error('Enrollment failed');
@@ -106,6 +106,5 @@
         }
     });
 </script>
-                                                                                                            
-                                                                                                     
-                                                                                                                                                                                                                                                                                                                                                                                         
+
+
