@@ -63,9 +63,8 @@
         <div id="instructor-dashboard">
             <div class="banner d-flex flex-column justify-content-center align-items-center mb-5">
                 <h1 class="display-6">Are you ready to begin?</h1>
-                <a role="button" asp-controller="Courses" asp-action="Course"
-                    class="btn btn-upskillz mt-2 mb-5 py-2 px-5">Create a
-                    course</a>
+                <a role="button" asp-controller="Courses" asp-action="Course" class="btn btn-upskillz mt-2 py-2 px-5">Create
+                    a course</a>
             </div>
         </div>
 
@@ -94,7 +93,9 @@
                                 <div class="mt-auto">
                                     <div class="btn-group">
                                         <a class="btn btn-outline-upskillz btn-sm" asp-controller="Courses" asp-action="Course"
-                                            asp-route-id="@course.CourseId">Manage</a>
+                                            asp-route-id="@course.CourseId">Edit</a>
+                                        <a class="btn btn-outline-primary btn-sm" asp-action="Course"
+                                            asp-route-id="@course.CourseId">Lessons</a>
                                         @*<a class="btn btn-outline-danger btn-sm" asp-controller="Courses" asp-action="Delete"
                                             asp-route-id="@course.CourseId">Delete</a>*@
                                     </div>

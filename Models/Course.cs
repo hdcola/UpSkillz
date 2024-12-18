@@ -36,4 +36,6 @@ public class Course : UploadModel
     [DataType(DataType.DateTime)]
     public DateTime UpdatedAt { get; set; } = DateTime.Now;
 
+    public ICollection<Lesson> Lessons { get; set; } = new List<Lesson>();
+
 }
