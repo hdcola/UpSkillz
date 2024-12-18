@@ -8,9 +8,24 @@
 }
 
 
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-success">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Courses" asp-action="Explore" class="text-decoration-none text-success">Courses</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Courses" asp-action="Details" class="text-decoration-none text-success active"  asp-route-id="@ViewBag.courseId">@ViewBag.courseTitle</a>
+        </li>
+        <li class="breadcrumb-item active" >
+            Lessons
+        </li>
+    </ol>
+</nav>
+
 <h1>@ViewBag.courseTitle</h1>
-
-
 @{
     var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
     if (ViewBag.ErrorMessage != null)
@@ -24,7 +39,6 @@
 
         if (ViewBag.Enrolled == true || currentUserId == ViewBag.InstructorId)
         {
-            <h5>Lessons for the course enrolled</h5>
             <div class="d-flex align-items-start my-5">
                 <div class="nav flex-column nav-pills nav-pills-upskillz w-25 me-3" id="v-pills-tab" role="tablist"
                     aria-orientation="vertical">

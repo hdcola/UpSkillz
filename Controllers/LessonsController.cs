@@ -103,6 +103,9 @@ namespace UpSkillz.Controllers
                             var lessons = await _context.Lessons
                                 .Where(l => l.Course.CourseId == courseId)
                                 .ToListAsync();
+                            
+                            ViewBag.courseId = course.CourseId;
+                            ViewBag.courseTitle = course.Title;
 
                                 return View(lessons);
 
