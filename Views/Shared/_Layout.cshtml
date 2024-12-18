@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<User> SignInManager
+@inject UserManager<User> UserManager
+    
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -28,6 +32,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Enrolled">Your Courses</a>
+                            </li>
+                        }
                         @if (User.IsInRole("Instructor")) 
                         {
                             <li class="nav-item">
