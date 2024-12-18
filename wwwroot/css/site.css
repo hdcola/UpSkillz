@@ -30,6 +30,9 @@ input:focus,
 .nav-pills-upskillz .nav-link {
   color: #00B050;
 }
+.nav-pills-upskillz#v-pills-tab .nav-link:not(.active) {
+  color: black;
+}
 
 .nav-link.nav-link-upskillz.active,
 .nav-pills-upskillz .nav-link.active,
