@@ -1,4 +1,4 @@
-@model UpSkillz.Models.Lesson
+@model UpSkillz.Models.Course
 @using System.Text.Json
 
 @{
@@ -20,30 +20,41 @@
       <ul class="list-group mb-3">
         <li class="list-group-item d-flex justify-content-between lh-sm">
           <div>
-            <h5 class="my-0 text-primary">Course title</h5>
-            <small class="text-body-secondary">Brief description</small>
+            <h5 class="my-0 text-primary">@Model.Title</h5>
+            <small class="text-body-secondary">
+              @(Model.Description.Length > 255 ? Model.Description.Substring(0, 255) + "..." : Model.Description)
+            </small>
           </div>
-          <span class="text-body-secondary">$20</span>
+          <span class="text-body-secondary">$@Model.Price</span>
         </li>
-        <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+        <li class="list-group-item d-flex justify-content-between lh-sm">
+          <div>
+            <h5 class="my-0 text-primary">Instructor: <span
+                class="text-body-secondary">@Model.Instructor.UserName</span>
+            </h5>
+          </div>
+
+        </li>
+
+        @* <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
           <div class="text-success">
             <h6 class="my-0">Promo code</h6>
             <small>EXAMPLECODE</small>
           </div>
           <span class="text-success">−$5</span>
-        </li>
+        </li> *@
         <li class="list-group-item d-flex justify-content-between">
           <span>Total (USD)</span>
-          <strong>$15</strong>
+          <strong>$@Model.Price</strong>
         </li>
       </ul>
 
-      <form class="card p-2">
+      @* <form class="card p-2">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Promo code">
           <button type="submit" class="btn btn-secondary">Redeem</button>
         </div>
-      </form>
+      </form> *@
     </div>
 
     <div class="col-md-7 col-lg-8">
@@ -73,6 +84,8 @@
 
   const userName = @Html.Raw(JsonSerializer.Serialize(ViewBag.UserName));
   const email = @Html.Raw(JsonSerializer.Serialize(ViewBag.Email));
+  const amount = @((int)(Model.Price * 100)); // Convert to cents
+  const courseId = @Model.CourseId;
 
   const form = document.getElementById('payment-form');
   const resultContainer = document.getElementById('payment-result');
@@ -91,7 +104,8 @@
       body: JSON.stringify({
         Name: userName,
         Email: email,
-        Amount: 5000 // Amount in cents ($50.00)
+        Amount: amount,
+        CourseId: courseId
       })
     });
     const { clientSecret } = await response.json();
