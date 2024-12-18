@@ -99,7 +99,7 @@ namespace UpSkillz.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Instructor")]
-        public async Task<IActionResult> Course([Bind("Title,Description,Price,File")] Course course)
+        public async Task<IActionResult> Create([Bind("Title,Description,Price,File")] Course course)
         {
             var user = await _userManager.GetUserAsync(User);
             course.Instructor = user;
