@@ -21,7 +21,8 @@ body {
   margin-bottom: 60px;
 }
 
-input:focus {
+input:focus,
+#search-courses #search:focus {
   border-color:#00bb54;
   box-shadow: none;
 }

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using UpSkillz.Data;
 using UpSkillz.Models;
@@ -38,6 +37,36 @@ namespace UpSkillz.Controllers
             var courses = await _context.Courses.ToListAsync();
             return View(courses);
         }
+
+        // POST: Courses/Explore/Search
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> Search([FromBody] Search search)
+        {
+            _logger.LogInformation($"Search courses {search.SearchTerms}");
+
+            if (string.IsNullOrEmpty(search.SearchTerms))
+            {
+                _logger.LogInformation("Search cannot be null.");
+                return BadRequest("Search cannot be null.");
+            }
+
+            var courses = await _context.Courses
+                .Where(c => c.Title
+                .Contains(search.SearchTerms))
+                .ToListAsync();
+
+            return PartialView("~/Views/Courses/Cards.cshtml", courses);
+        }
+
+        [HttpPost]
+        [AllowAnonymous]
+        public async Task<IActionResult> SearchReset()
+        {
+            var courses = await _context.Courses.ToListAsync();
+            return PartialView("~/Views/Courses/Cards.cshtml", courses);
+        }
+
         // GET: Cards for partial view
         public async Task<IActionResult> Cards()
         {

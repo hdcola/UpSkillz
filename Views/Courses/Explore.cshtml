@@ -6,12 +6,57 @@
     ViewData["Title"] = "Explore the courses";
 }
 
+@section scripts {
+    <script>
+        $(function () {
+            $(`form#search-courses`).on("submit", function (event) {
+                event.preventDefault();
+                const searchTerms = $("#search").val();
+
+                $.ajax({
+                    type: "POST",
+                    url: '/Courses/Search',
+                    contentType: "application/json; charset=utf-8",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    data: JSON.stringify({ SearchTerms: searchTerms }),
+                    success: function (data) {
+                        $("#results").html(data);
+                    },
+                    error: function (req, err) {
+                        console.log("error", err);
+                    }
+                });
+            });
+
+            $('#search').on('search', function () {
+                // search logic here
+                // this function will be executed on click of X (clear button)
+                if ($(this).val() != "") return;
+
+                // Only proceed if search is cleared.
+                $.ajax({
+                    type: "POST",
+                    url: '/Courses/SearchReset',
+                    contentType: "application/json; charset=utf-8",
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (data) {
+                        $("#results").html(data);
+                    },
+                    error: function (req, err) {
+                        console.log("error", err);
+                    }
+                });
+            });
+        });
+    </script>
+}
+
 <h2 class="text-center my-4">Explore the courses</h2>
 
-    <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3 m-3" role="search">
-          <input type="search" class="form-control" placeholder="Search..." aria-label="Search">
-    </form>
+<form id="search-courses" class="col-12 col-lg-auto mb-3 me-lg-3 m-3" role="search">
+    <input id="search" type="search" class="form-control" placeholder="Search courses..." aria-label="Search">
+</form>
 
-<main>
+<div id="results">
     @await Html.PartialAsync("~/Views/Courses/Cards.cshtml", Model)
-</main>
+</div>
