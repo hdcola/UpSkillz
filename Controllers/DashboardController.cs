@@ -85,5 +85,20 @@ namespace UpSkillz.Controllers
 
             return View(course);
         }
+
+        // GET: Dashboard/Enrolled
+        [Authorize]
+        public async Task<IActionResult> Enrolled()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            var enrollments = await _context.Enrollments
+                .Include(e => e.Course)
+                .Where(e => e.Student == user)
+                .ToListAsync();
+
+            var courses = enrollments.Select(e => e.Course).ToList();
+
+            return View(courses);
+        }
     }
 }
