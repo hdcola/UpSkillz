@@ -10,7 +10,7 @@ public class Course:UploadModel
     public int CourseId { get; set; }
 
     [Required]
-    public User Instructor { get; set; } = new User();
+    public User Instructor { get; set; } = null!;
 
     public ICollection<Enrollment> Enrollments { get; set; } = new List<Enrollment>();
 

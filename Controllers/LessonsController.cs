@@ -62,8 +62,11 @@ namespace UpSkillz.Controllers
                 if (int.TryParse(Request.Query["courseId"], out int courseId))
                 {
                     _logger.LogWarning($"Received courseId: {courseId}");
-                    var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
+                    // var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
 
+                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); 
+                    _logger.LogInformation($"User Id: {userId}");
+                    /*
                     if (course == null)
                     {
                         ViewBag.status = "error";
@@ -75,9 +78,32 @@ namespace UpSkillz.Controllers
                         ViewBag.courseId = course.CourseId;
                         ViewBag.courseTitle = course.Title;
                         return View(await _context.Lessons
-                                    .Include(sl => sl.StudentsLessons)         
-                                    .Where(l => l.Course.CourseId == courseId).ToListAsync());
-                    
+                                .Include(sl => sl.StudentsLessons)                                     
+                                .Where(sl => sl.StudentsLessons.UserId == userId)        
+                                .Where(l => l.Course.CourseId == courseId).ToListAsync());
+                    */
+
+                    var enrollment = await _context.Enrollments
+                        .Include(e => e.Course)
+                        .FirstOrDefaultAsync(e => e.Course.CourseId == courseId && e.Student.Id == userId);
+
+                    if (enrollment == null)
+                    {
+                        _logger.LogInformation("User is not enrolled in the course or course does not exist.");
+                        return View(Enumerable.Empty<Lesson>());
+                    }
+
+                    _logger.LogInformation($"User is enrolled in course: {enrollment.Course.Title}");
+                    ViewBag.courseId = enrollment.Course.CourseId;
+                    ViewBag.courseTitle = enrollment.Course.Title;
+
+                    var lessons = await _context.Lessons
+                        .Include(l => l.StudentsLessons)
+                        .Where(l => l.Course.CourseId == enrollment.Course.CourseId)
+                        .ToListAsync();
+
+                    return View(lessons);
+
                 }
                 
                 _logger.LogWarning("Invalid or missing courseId.");
@@ -96,20 +122,40 @@ namespace UpSkillz.Controllers
 
 
     // POST: Lessons/CompleteLesson/{id}
-    [HttpGet]
+    [HttpPost("Lessons/CompleteLesson/{id}")]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> CompleteLesson(int id)
     {
         try
-        {
-            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        {   
+            _logger.LogInformation($"lesson Id: {id}");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);            
+            _logger.LogInformation($"userId: {userId}");
 
             if (userId == null)
             {
                 return BadRequest("User is not authenticated.");
             }
+            
+            var lesson = await _context.Lessons
+                .Include(l => l.Course)
+                .FirstOrDefaultAsync(l => l.LessonId == id);
+
+            if (lesson == null)
+            {
+                _logger.LogWarning($"Lesson with ID {id} not found.");
+                return NotFound();
+            }
+            
+            var course = lesson.Course; 
+            _logger.LogInformation($"courseId: {course.CourseId}");
+            ViewBag.courseId = course.CourseId;
+
 
             var studentLesson = await _context.StudentsLessons
                 .FirstOrDefaultAsync(sl => sl.LessonId == id && sl.UserId == userId);
+            
+            _logger.LogInformation($"studentLesson: {studentLesson}");
 
             if (studentLesson == null)
             {
