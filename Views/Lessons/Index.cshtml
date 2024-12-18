@@ -6,9 +6,12 @@
     bool isFirst = true; // to identify the first lesson
 }
 
-<h5>Lessons for the course enrolled</h5>
+
 <h1>@ViewBag.courseTitle</h1>
 
+@if (ViewBag.Enrolled == true) {
+
+<h5>Lessons for the course enrolled</h5>
 <div class="d-flex align-items-start my-5">
     <div class="nav flex-column nav-pills me-3" id="v-pills-tab" role="tablist" aria-orientation="vertical">
         @foreach (var lesson in Model)
@@ -99,5 +102,10 @@
         }
     </div>
 </div>
+} else {
 
+    <h5 class="my-4">You are not enrolled in this course</h5>
+    <a href="javascript:history.back()" class="btn btn-secondary mt-3">Back to the course</a>
+
+}
 

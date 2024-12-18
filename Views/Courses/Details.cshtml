@@ -79,8 +79,8 @@
 
             if (User.IsInRole("Instructor") && currentUserId == ViewBag.InstructorId)
             {                
-                <a asp-controller="Courses" asp-action="Course" asp-route-id="@Model.CourseId"
-                class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Manage the course</a>
+                <a asp-controller="Lessons" asp-action="Index" asp-route-courseId="@Model.CourseId"
+                class="btn btn-upskillz btn-lg px-4 gap-3 me-4">View the course</a>
             } else if (User.IsInRole("User") || User.IsInRole("Admin")){
                 <a asp-controller="Checkout" asp-action="Index" asp-route-cid="@Model.CourseId"
                 class="btn btn-upskillz btn-lg px-4 gap-3 me-4">Enroll now</a>

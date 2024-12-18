@@ -60,17 +60,24 @@ namespace UpSkillz.Controllers
 
 
         // GET: Lessons?courseId=5
+        [Authorize]
         public async Task<IActionResult> Index()
         {
+            ViewBag.Enrolled = false;
             try
             {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);                
+                _logger.LogInformation($"User Id: {userId}");
+
+                if (userId == null) {
+                    return RedirectToAction("Index", "Home");
+                }
+
                 if (int.TryParse(Request.Query["courseId"], out int courseId))
                 {
                     _logger.LogWarning($"Received courseId: {courseId}");
                     // var course = await _context.Courses.FirstOrDefaultAsync(c => c.CourseId == courseId);
 
-                    var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                    _logger.LogInformation($"User Id: {userId}");
 
                     var enrollment = await _context.Enrollments
                         .Include(e => e.Course)
@@ -81,6 +88,10 @@ namespace UpSkillz.Controllers
                         _logger.LogInformation("User is not enrolled in the course or course does not exist.");
                         return View(Enumerable.Empty<Lesson>());
                     }
+
+                    ViewBag.Enrolled = true;
+                    ViewBag.courseTitle = enrollment.Course.Title;
+                    
 
                     _logger.LogInformation($"User is enrolled in course: {enrollment.Course.Title}");
                     ViewBag.courseId = enrollment.Course.CourseId;
