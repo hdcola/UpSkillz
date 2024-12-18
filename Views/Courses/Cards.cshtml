@@ -9,7 +9,8 @@
                 {
                     <div class="col">
                         <div class="card shadow-sm d-flex flex-column h-100">
-                            <img class="card-img-top" width="100%" height="225" src="https://images.pexels.com/photos/546819/pexels-photo-546819.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" />
+                            <img class="card-img-top" width="100%" height="225" 
+                            src="@(!string.IsNullOrEmpty(course.imageUrl) ? course.imageUrl : Url.Content("~/images/courses-1.jpg"))" />
                             <div class="card-body d-flex flex-column flex-grow-1">
                                 <h5 class="card-title">@course.Title</h5>
 
