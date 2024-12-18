@@ -6,7 +6,7 @@ public class Lesson
     public int LessonId { get; set; }
 
     [Required]
-    public Course Course { get; set; } =  null!;
+    public Course Course { get; set; } = null!;
 
     [Required(ErrorMessage = "Lesson title is required.")]
     [StringLength(100, MinimumLength = 1)]
@@ -16,7 +16,7 @@ public class Lesson
     public string Content { get; set; } = string.Empty;
 
     [StringLength(255)]
-    public string VideoUrl { get; set; } = string.Empty;
+    public string? VideoUrl { get; set; } = string.Empty;
 
     public int Duration { get; set; }
 
@@ -26,7 +26,7 @@ public class Lesson
     [DataType(DataType.DateTime)]
     public DateTime UpdatedAt { get; set; }
 
-   public ICollection<StudentLesson> StudentsLessons { get; set; } = new List<StudentLesson>();
+    public ICollection<StudentLesson> StudentsLessons { get; set; } = new List<StudentLesson>();
 
 
 }
