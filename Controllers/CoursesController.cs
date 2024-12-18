@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -48,6 +49,7 @@ namespace UpSkillz.Controllers
         // GET: Courses/Details/5
         public async Task<IActionResult> Details(int? id)
         {
+            ViewBag.Enrolled = false;
             if (id == null)
             {
                 return NotFound();
@@ -55,6 +57,7 @@ namespace UpSkillz.Controllers
 
             var course = await _context.Courses
                 .Include(c => c.Instructor)
+                .Include(c => c.Lessons)
                 .FirstOrDefaultAsync(m => m.CourseId == id);
             if (course == null)
             {
@@ -63,10 +66,47 @@ namespace UpSkillz.Controllers
             /*var instructor = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);*/
             var instructor = course.Instructor;
-
-            ViewBag.instructorName = instructor.UserName ?? "Anonymous";
-            ViewBag.instructorId = course.Instructor.Id;
+             if (instructor == null)
+            {
+                _logger.LogWarning("No instructor found for course ID: {id}", id);
+                ViewBag.instructorName = "Anonymous";
+                ViewBag.instructorId = null;
+            }
+            else
+            {
+                ViewBag.instructorName = instructor.UserName ?? "Anonymous";
+                ViewBag.instructorId = instructor.Id;
+            }
+            
             ViewBag.courseId = course.CourseId;
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId != null){
+
+                _logger.LogInformation($"Checking if logged userId: {userId} is enrolled into the course #{id}");
+
+                var enrollment = await _context.Enrollments
+                    .Include(e => e.Course)
+                    .FirstOrDefaultAsync(e => e.Course.CourseId == id && e.Student.Id == userId);
+
+                var enrollmentsCount = await _context.Enrollments
+                .Where(e => e.Course.CourseId == id)
+                .CountAsync();
+                ViewBag.enrollmentsCount = enrollmentsCount;
+
+                if (enrollment != null)
+                {                
+                    _logger.LogInformation($"logged userId is enrolled into the course: {enrollment.Course.Title}");
+                    ViewBag.Enrolled = true;
+                } else {
+                    _logger.LogInformation($"logged userId is NOT enrolled into the course");
+
+                }
+            }
+                        
+
+            _logger.LogInformation($"ViewBag.Enrolled: {ViewBag.Enrolled}");
+            
 
             _logger.LogInformation($"Course instructor: {ViewBag.instructorName}");
             return View(course);

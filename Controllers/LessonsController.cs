@@ -71,22 +71,6 @@ namespace UpSkillz.Controllers
 
                     var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                     _logger.LogInformation($"User Id: {userId}");
-                    /*
-                    if (course == null)
-                    {
-                        ViewBag.status = "error";
-                        _logger.LogInformation("Course does not exist.");
-                        ViewBag.ErrorMessage = "Course does not exist.";                        
-                        return View(Enumerable.Empty<Lesson>()); // return empty list for view
-                    }
-                        _logger.LogInformation($"CourseId in GET method: {course.CourseId} ->  Title: {course.Title}");
-                        ViewBag.courseId = course.CourseId;
-                        ViewBag.courseTitle = course.Title;
-                        return View(await _context.Lessons
-                                .Include(sl => sl.StudentsLessons)                                     
-                                .Where(sl => sl.StudentsLessons.UserId == userId)        
-                                .Where(l => l.Course.CourseId == courseId).ToListAsync());
-                    */
 
                     var enrollment = await _context.Enrollments
                         .Include(e => e.Course)
