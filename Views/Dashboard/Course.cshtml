@@ -6,6 +6,20 @@
     ViewData["Title"] = "Course Lessons";
 }
 
+
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item">
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-success">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a asp-controller="Dashboard" asp-action="Index" class="text-decoration-none text-success">My Courses</a>
+        </li>
+        <li class="breadcrumb-item active" aria-current="page">@Html.DisplayFor(model => model.Title)</li>
+    </ol>
+</nav>
+
+
 <main>
     <h2 class="text-center mb-4"> @Html.DisplayFor(model => model.Title)</h2>
     <hr>
