@@ -63,7 +63,7 @@
         <div id="instructor-dashboard">
             <div class="banner d-flex flex-column justify-content-center align-items-center mb-5">
                 <h1 class="display-6">Are you ready to begin?</h1>
-                <a role="button" asp-controller="Courses" asp-action="Create"
+                <a role="button" asp-controller="Courses" asp-action="Course"
                     class="btn btn-upskillz mt-2 mb-5 py-2 px-5">Create a
                     course</a>
             </div>
@@ -72,12 +72,12 @@
         <h3 class="text-center mb-4">Courses You Manage</h3>
         @if (Model.Any())
         {
-            <ul class="list-group">
+            <div class="d-flex flex-wrap gap-3">
                 @foreach (var course in Model)
                 {
                     <div class="col-3">
-                        <div class="card shadow-sm d-flex flex-column h-100">
-                            <div class="card-body d-flex flex-column flex-grow-1">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
                                 <h5 class="card-title">@course.Title</h5>
 
                                 @{
@@ -93,15 +93,17 @@
 
                                 <div class="mt-auto">
                                     <div class="btn-group">
-                                        <a class="btn btn-outline-upskillz btn-sm" asp-controller="Courses" asp-action="Edit"
+                                        <a class="btn btn-outline-upskillz btn-sm" asp-controller="Courses" asp-action="Course"
                                             asp-route-id="@course.CourseId">Manage</a>
+                                        @*<a class="btn btn-outline-danger btn-sm" asp-controller="Courses" asp-action="Delete"
+                                            asp-route-id="@course.CourseId">Delete</a>*@
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
-            </ul>
+            </div>
         }
         else
         {
