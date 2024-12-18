@@ -1,0 +1,13 @@
+@model IEnumerable<UpSkillz.Models.Course>
+
+
+@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Enrolled Courses";
+}
+
+<div class="row">
+    <h1 class="display-6 text-center">Your Courses</h1>
+    <hr>
+    @await Html.PartialAsync("~/Views/Courses/Cards.cshtml", Model)
+</div>

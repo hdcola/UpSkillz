@@ -429,6 +429,7 @@ namespace UpSkillz.Controllers
                     lesson.VideoUrl = string.Empty;
                 }
 
+                lesson.UpdatedAt = DateTime.UtcNow;
                 _context.Update(lesson);
                 await _context.SaveChangesAsync();
 
