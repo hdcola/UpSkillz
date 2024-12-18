@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 namespace UpSkillz.Models;
 
-public class Course:UploadModel
+public class Course : UploadModel
 {
     [Key]
     public int CourseId { get; set; }

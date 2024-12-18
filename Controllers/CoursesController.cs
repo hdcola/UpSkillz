@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -9,13 +11,15 @@ namespace UpSkillz.Controllers
     public class CoursesController : Controller
     {
         private readonly ApplicationDbContext _context;
-         private readonly BlobStorageService _blobStorageService;
+        private readonly BlobStorageService _blobStorageService;
+        private readonly UserManager<User> _userManager;
         private ILogger<CoursesController> _logger;
 
-        public CoursesController(ApplicationDbContext context, BlobStorageService blobStorageService, ILogger<CoursesController> logger)
+        public CoursesController(ApplicationDbContext context, BlobStorageService blobStorageService, UserManager<User> userManager, ILogger<CoursesController> logger)
         {
             _context = context;
             _blobStorageService = blobStorageService;
+            _userManager = userManager;
             _logger = logger;
         }
 
@@ -37,7 +41,7 @@ namespace UpSkillz.Controllers
         public async Task<IActionResult> Cards()
         {
             var courses = await _context.Courses.ToListAsync();
-            return View(courses); 
+            return View(courses);
         }
 
         // GET: Courses/Details/5
@@ -55,10 +59,11 @@ namespace UpSkillz.Controllers
             {
                 return NotFound();
             }
-            var instructor = await _context.Users
-                .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);
+            /*var instructor = await _context.Users
+                .FirstOrDefaultAsync(u => u.Id == course.Instructor.Id);*/
+            var instructor = course.Instructor;
 
-            ViewBag.instructorName = instructor?.UserName ?? "Anonymous";
+            ViewBag.instructorName = instructor.UserName ?? "Anonymous";
             ViewBag.instructorId = course.Instructor.Id;
             ViewBag.courseId = course.CourseId;
 
@@ -67,25 +72,43 @@ namespace UpSkillz.Controllers
         }
 
         // GET: Courses/Create
-        public IActionResult Create()
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Course(int? id)
         {
-            ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
-            return View();
+            var course = new Course();
+            if (id != null)
+            {
+                var found = await _context.Courses.FindAsync(id);
+                var user = await _userManager.GetUserAsync(User);
+
+                if (found.Instructor == user)
+                {
+                    _logger.LogInformation("Found existing course");
+                    course = found;
+                    ViewBag.EditMode = true;
+                }
+            }
+            //ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
+            return View(course);
         }
 
-        // POST: Courses/Create
+        // POST: Courses/Course
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor,File")] Course course)
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Course([Bind("Title,Description,Price,File")] Course course)
         {
-            ModelState.Clear();
-            TryValidateModel(course);
+            var user = await _userManager.GetUserAsync(User);
+            course.Instructor = user;
 
-            if (ModelState.IsValid)
-            {          
-                _logger.LogInformation("ILogger: Model is Valid.");
+            ModelState.Clear();
+
+            if (TryValidateModel(course))
+            {
+                _logger.LogInformation("Creating a course");
+
                 course.CreatedAt = DateTime.UtcNow;
                 course.UpdatedAt = DateTime.UtcNow;
 
@@ -95,13 +118,14 @@ namespace UpSkillz.Controllers
                     course.imageUrl = blobUrl;
                 }
 
-                _context.Add(course);     
-                await _context.SaveChangesAsync();           
+                _context.Add(course);
+                await _context.SaveChangesAsync();
+
                 _logger.LogInformation("ILogger: Course was saved to database.");
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Index", "Dashboard");
             }
-                      
-            
+
+
             _logger.LogInformation("ILogger: Model is NOT valid.");
             foreach (var state in ModelState)
             {
@@ -111,10 +135,34 @@ namespace UpSkillz.Controllers
                     _logger.LogInformation($"ILogger: Validation Error in field '{field}': {error.ErrorMessage}");
                 }
             }
-            ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
+            //ViewBag.InstructorList = new SelectList(_context.Users, "Id", "UserName");
             return View(course);
         }
 
+        // POST: Courses/Course/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Instructor")]
+        public async Task<IActionResult> Edit([Bind("CourseId,Title,Description,Price,imageUrl,File,Instructor")] Course course)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            course.Instructor = user;
+
+            ModelState.Clear();
+
+            if (TryValidateModel(course))
+            {
+                course.UpdatedAt = DateTime.UtcNow;
+                _context.Update(course);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            return View(course);
+        }
+
+        /*
         // GET: Courses/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
@@ -138,9 +186,8 @@ namespace UpSkillz.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("CourseId,Title,Description,Price,CreatedAt,UpdatedAt,Instructor")] Course course)
         {
-            
-            _logger.LogInformation($"ILogger: Trying to update - Title: {course.Title}, Description: {course.Description}, Price: {course.Price}, CreatedAt: {course.CreatedAt}, UpdatedAt: {course.UpdatedAt}");
 
+            _logger.LogInformation($"ILogger: Trying to update - Title: {course.Title}, Description: {course.Description}, Price: {course.Price}, CreatedAt: {course.CreatedAt}, UpdatedAt: {course.UpdatedAt}");
             if (id != course.CourseId)
             {
                 _logger.LogInformation("ILogger: Course is NOT found.");
@@ -162,7 +209,7 @@ namespace UpSkillz.Controllers
                     }
 
                     _logger.LogInformation($"ILogger: Trying to update Course {existingCourse.CourseId} with Instructor: {existingCourse.Instructor.Id}");
-                    
+
                     existingCourse.Title = course.Title;
                     existingCourse.Description = course.Description;
                     existingCourse.Price = course.Price;
@@ -173,7 +220,7 @@ namespace UpSkillz.Controllers
                     {
                         existingCourse.Instructor = course.Instructor;
                     }
-                    await _context.SaveChangesAsync();                    
+                    await _context.SaveChangesAsync();
                     _logger.LogInformation("ILogger: Course is updated.");
                 }
                 catch (DbUpdateConcurrencyException ex)
@@ -205,6 +252,7 @@ namespace UpSkillz.Controllers
             }
             return View(course);
         }
+        */
 
         // GET: Courses/Delete/5
         public async Task<IActionResult> Delete(int? id)
