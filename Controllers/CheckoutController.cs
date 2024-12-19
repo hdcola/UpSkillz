@@ -6,9 +6,11 @@ using UpSkillz.Data;
 using UpSkillz.Models;
 using UpSkillz.Services;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace UpSkillz.Controllers
 {
+    [Authorize]
     public class CheckoutController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -31,6 +33,19 @@ namespace UpSkillz.Controllers
             {
                 _logger.LogError("Invalid course ID: {CourseId}", cid);
                 return BadRequest("Invalid course ID");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            // Check if enrollment already exists.
+            var isEnrolled = _context.Enrollments
+                .Where(e => e.Course.CourseId == courseId && e.Student.Id == userId)
+                .FirstOrDefault();
+
+            if (isEnrolled != null)
+            {
+                _logger.LogInformation("User is already enrolled.");
+                return RedirectToAction("Details", "Courses", new { Id = courseId });
             }
 
             _logger.LogInformation("Accessing checkout page for course ID {CourseId}", courseId);
@@ -133,6 +148,17 @@ namespace UpSkillz.Controllers
                 {
                     _logger.LogError("User not found for ID: {UserId}", userId);
                     return NotFound("User not found");
+                }
+
+                // Check if enrollment already exists.
+                var isEnrolled = _context.Enrollments
+                    .Where(e => e.Course.CourseId == course.CourseId && e.Student.Id == userId)
+                    .FirstOrDefault();
+
+                if (isEnrolled != null)
+                {
+                    _logger.LogInformation("User is already enrolled.");
+                    return RedirectToAction("Details", "Courses", new { Id = course.CourseId });
                 }
 
                 // Create a new enrollment
