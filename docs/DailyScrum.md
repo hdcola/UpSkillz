@@ -191,6 +191,43 @@
 -
 
 
+---
+
+### _12/18_
+
+#### Iana
+
+##### Done since last scrum
+- Added images and videos
+- Showing different variants for user roles on Courses page
+##### To do until next scrum
+- Will show lessons for the instructor
+##### Need assistance with
+-
+
+#### Tamara
+
+##### Done since last scrum
+- Instructor portal
+- Add/Create courses
+##### To do until next scrum
+- Add/Create lessons
+- Add Enrolled courses view
+- Add purchase history
+- Plug in the search courses
+##### Need assistance with
+-
+
+
+#### Danny
+
+##### Done since last scrum
+- Started to prepare the project presentation
+##### To do until next scrum
+- 
+##### Need assistance with
+-
+
 
 
 
