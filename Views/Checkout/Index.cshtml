@@ -68,8 +68,9 @@
         <div id="payment-result" class="alert d-none mb-3"></div>
 
         <button class="w-100 btn btn-primary btn-lg" type="submit">Pay</button>
-        <div id="continue"></div>
+        
       </form>
+      <div id="continue"></div>
     </div>
   </div>
 </main>
@@ -91,7 +92,7 @@
 
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
-
+    console.log("Triggered");
     // Show loading state
     const submitButton = form.querySelector('button');
     submitButton.disabled = true;
